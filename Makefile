@@ -15,7 +15,7 @@ ${BIN}.elf: ${OBJS}
 	${CC} -o $@ $^
 
 install: ${BIN}.hex
-	avrdude -F -V -c ${PROGRAMMER} -p ${MODEL} -P ${PORT} -B 4 -b 115200 -U flash:w:$<
+	avrdude -F -c ${PROGRAMMER} -p ${MODEL} -P ${PORT} -B 4 -b 115200 -U flash:w:$<
 
 clean:
 	rm -f ${BIN}.elf ${BIN}.hex ${OBJS}
