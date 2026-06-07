@@ -126,6 +126,8 @@ drift — get a real quote from the [JLCPCB quote tool](https://jlcpcb.com/quote
 
 ### Known quirks (v0.2) and wishlist for a future revision
 
+> The next revision addressing all of these is specified in [hardware-v0.3.md](hardware-v0.3.md).
+
 The current board works, but relies on the firmware to compensate for a few design shortcuts:
 
 - The LEDs have no meaningful series resistance (R2 = 0.1Ω); current is limited only by the
