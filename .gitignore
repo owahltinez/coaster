@@ -1,3 +1,13 @@
 *.o
 *.elf
 *.hex
+*.rpt
+*.kicad_prl
+*-backups/
+coaster.net
+coaster.step
+coaster-1to1.pdf
+renders/
+*.FCBak
+*.FCStd1
+__pycache__/

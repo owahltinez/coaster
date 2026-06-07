@@ -10,6 +10,17 @@ between two brightness levels five times, ramp back down, and the device returns
 Because there's no on/off switch, the device remains on but it will do so in low power mode which
 for the ATTINY13A it consumes about 4 µA. While the light is on, the device consumes under 10 mA.
 
+## Repository layout
+
+- `firmware/` — AVR C firmware and its build/flash Makefile.
+- `pcb/` — v0.3 board design (KiCad, generated from python scripts) and footprints.
+- `enclosure/` — 3D-printed shell (design constraints; CAD source TODO).
+
+Both subdirectories share the same verbs, and the top-level Makefile forwards to both:
+`make build` (firmware hex + board), `make test` (flash-fit check + board DRC), `make clean`.
+Domain-specific verbs forward to the relevant subdirectory: `make flash` / `make fuses` /
+`make reset` (firmware programming), `make review` (board render / PDF / STEP).
+
 ## How it works
 
 The button is wired directly across the battery (through R1), so pressing it collapses the supply
@@ -59,7 +70,7 @@ ATTINY10, which are in active production.
 To build the code, you need to first install `avrdude`, `avr-libc` and `avr-gcc`. Then, you can run:
 
 ```bash
-make
+make -C firmware build   # or `make build` from the repo root to build firmware + board
 ```
 
 ### Flashing
@@ -67,7 +78,7 @@ make
 To flash the code to the ATTINY13A chip, you'll need a USB programmer like [this one][usbasp].
 
 ```bash
-make install
+make flash
 ```
 
 The fuses must be set once per chip to enable the 1.8V brown-out detector (factory default leaves
@@ -89,7 +100,7 @@ Gotchas learned the hard way:
   `target does not answer` and signature reads as `0x000000`, this is why. A programmer with a
   3.3V supply jumper avoids the problem entirely.
 - **Writes are reliable at 125kHz but readback isn't** when holding the ISP cable against the
-  board by hand — a flaky MISO contact corrupts reads, not the flash. `make install` handles this
+  board by hand — a flaky MISO contact corrupts reads, not the flash. `make flash` handles this
   by writing without inline verification and then verifying in a separate pass at 16kHz.
 - **Unplug the programmer from USB before taking the ISP cable off the board.** Hot-detaching the
   cable (transients/shorts on the target side) hangs the USBasp's bit-banged USB stack, and it
@@ -100,21 +111,33 @@ Gotchas learned the hard way:
 
 ## Hardware
 
-The design files in this repo:
+![coaster v0.3 board](pcb/board.png)
 
-- `schematic.net` — netlist (Protel/Altium format), the canonical machine-readable description of
-  the circuit: every net and the component pins on it, plus values and footprints.
-- `schematic.svg` — the schematic drawing, for humans.
-- `easyeda.json` — EasyEDA native source, for re-importing and editing the design in EasyEDA.
+The v0.3 design (KiCad) lives in `pcb/`:
 
-Circuit summary: PB0 drives four parallel white LEDs through R2; the button connects VCC to GND
-through R1 to power-cycle the MCU as a wake mechanism; the 6-pin AVRISP header exposes
+- `pcb/design.py` is the circuit as data — parts, placements, and the netlist defined once. This
+  is the file to read or edit; it is the source of truth.
+- `pcb/generate.py` turns it into `coaster.kicad_pcb` (committed for convenience). `make build`
+  regenerates the board and validates connectivity against `design.py` (every pad on a net or
+  explicitly no-connect); `make test` runs DRC; `make review` produces a board render, a 1:1
+  printable PDF, and a STEP model for CAD fit checks.
+- `pcb/coaster.pretty/` — project footprints with pad geometry extracted from the manufactured
+  v0.2 board (battery holder, tactile switch).
+- The v0.2 design files (EasyEDA source, netlist, schematic SVG, mechanical DXF) live in git
+  history at tag [v0.2.0](https://github.com/owahltinez/coaster/releases/tag/v0.2.0).
+
+There is no schematic: JLCPCB takes Gerbers + BOM + CPL (not a schematic), the board is built and
+checked directly against `design.py`, and `design.py` itself documents the circuit — so a derived
+schematic would add nothing.
+
+v0.2 circuit summary: PB0 drives four parallel white LEDs through R2; the button connects VCC to
+GND through R1 to power-cycle the MCU as a wake mechanism; the 6-pin AVRISP header exposes
 RESET/MISO/MOSI/SCK for in-circuit programming.
 
 ### Production
 
-All SMD parts are LCSC-stocked, so the board can be fabricated and assembled through JLCPCB
-directly from `easyeda.json` (EasyEDA has a built-in "order at JLCPCB" flow). Rough estimates as
+All SMD parts are LCSC-stocked, so the board can be fabricated and assembled through JLCPCB.
+Rough estimates as
 of June 2026: ~$18–20 of fixed fees per order (setup, stencil, feeder loading), ~$0.87 of parts
 and ~$0.05 of assembly per board, with the PCB itself at the ~$2-per-5-boards promotional tier.
 That works out to roughly **$3.00/board at qty 10, $1.85 at qty 30, $1.35 at qty 100** —
@@ -126,7 +149,7 @@ drift — get a real quote from the [JLCPCB quote tool](https://jlcpcb.com/quote
 
 ### Known quirks (v0.2) and wishlist for a future revision
 
-> The next revision addressing all of these is specified in [hardware-v0.3.md](hardware-v0.3.md).
+> The next revision addressing all of these is specified in [pcb/DESIGN.md](pcb/DESIGN.md).
 
 The current board works, but relies on the firmware to compensate for a few design shortcuts:
 
