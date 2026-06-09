@@ -22,6 +22,14 @@ import design
 
 SYS_FP = "/usr/share/kicad/footprints"
 
+# Fixed seed for KiCad's UUID generator. Every board item (footprints, pads,
+# tracks, vias, zones, text) gets a fresh UUID at construction, and KiCad
+# serializes items in UUID order -- so without a fixed seed each regeneration
+# rewrites every UUID and reshuffles the file, producing a huge no-op diff.
+# Seeding before we build anything makes the UUID sequence (and thus the file)
+# byte-stable across runs as long as the design and build order are unchanged.
+UUID_SEED = 0xC0A57E12
+
 
 def fp_lib_path(footprint):
     """Resolve a 'lib:name' footprint id to (library_dir, name)."""
@@ -235,8 +243,12 @@ def fill_zones():
 
 if __name__ == "__main__":
     if sys.argv[1:] == ["fill"]:
+        # Distinct seed from the build pass so any UUIDs the fill creates can't
+        # collide with the board items already written by the parent process.
+        pcbnew.KIID.SeedGenerator(UUID_SEED + 1)
         fill_zones()
     else:
+        pcbnew.KIID.SeedGenerator(UUID_SEED)
         build_board()
         # fill in a child process (see module docstring)
         subprocess.run([sys.executable, __file__, "fill"], check=True)
