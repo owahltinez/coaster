@@ -61,11 +61,15 @@ Notes:
 | C2 | 22µF MLCC | 0805 | any basic | Basic | 0.01 |
 | C3 | 100nF (debounce, optional) | 0603 | any basic | Basic | 0.001 |
 | SW1 | Tactile switch | SMD | prefer a basic-catalog switch over TS-1187A | Basic if possible | 0.02 |
-| BT1 | CR2032 holder MY-2032-12 | SMD | C964833 | Extended | 0.07 |
+| BT1 | CR2016 holder MY-2016-02 | SMD | C2979176 | Extended | 0.16 |
 
-Per-board parts ≈ $0.85 USD. Extended parts: U1 + BT1 (+SW1 if no basic alternative) →
+Per-board parts ≈ $0.94 USD. Extended parts: U1 + BT1 (+SW1 if no basic alternative) →
 $3 feeder fee each per order. Option: leave BT1 off the assembly and hand-solder it
 (two large pads) to save the fee.
+
+BT1 is a CR2016, not CR2032: same Ø20mm cell, but the MY-2016-02 holder is 2.2mm tall vs the
+MY-2032-12's 3.6mm, slimming the enclosure (the holder was the tallest component). ~75mAh still
+gives 2+ years at a few presses a day — µA sleep dominates and presses are now ~free.
 
 ## Ordering plan
 

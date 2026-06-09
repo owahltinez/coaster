@@ -13,7 +13,8 @@ tactile button at the center of the PCB.
 - The flexure must press the button at the board center.
 - Center clearance: the LED ring sits 6 mm from center; a center press-post
   must stay narrower than ~9 mm so it does not cover the LEDs.
-- Battery holder is the tallest component; the base must clear it.
+- Battery holder (CR2016, MY-2016-02) is 2.2mm tall — about button height, no longer
+  the dominant constraint, but the base must still clear it.
 
 To check fit against the actual board, run `make review` in `pcb/` to export
 `coaster.step` and import it into the FreeCAD assembly.

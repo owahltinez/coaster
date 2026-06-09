@@ -19,7 +19,7 @@ Part = namedtuple("Part", "footprint value")
 PARTS = {
     "U1":  Part("Package_SO:SOIC-8_3.9x4.9mm_P1.27mm", "ATtiny402-SSN"),
     "Q1":  Part("Package_TO_SOT_SMD:SOT-23", "2N7002"),
-    "BT1": Part("coaster:MY-2032-12", "CR2032"),
+    "BT1": Part("coaster:MY-2016-02", "CR2016"),
     "SW1": Part("coaster:TS-1187A", "TS-1187A-B-A-B"),
     "J1":  Part("Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical", "UPDI"),
     "C1":  Part("Capacitor_SMD:C_0603_1608Metric", "100nF"),
