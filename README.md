@@ -27,15 +27,17 @@ The button is wired directly across the battery (through R1), so pressing it col
 voltage and power-cycles the microcontroller. Booting up *is* the wake mechanism: the firmware runs
 the light show once on every boot, then enters power-down sleep until the next press.
 
-Because any unexpected reset would also replay the show, the firmware keeps a magic cookie in
-`.noinit` SRAM (which survives brown-out resets) to detect a show interrupted by a reset — a worn
-battery sagging below 1.8V under LED load. In that case it goes straight back to sleep instead of
-replaying, which makes a reset-relight loop impossible. Note that the show must play on every
-*other* cookie state including scrambled SRAM: a button press collapses VCC entirely and destroys
-SRAM, so it cannot leave evidence behind — requiring positive proof of a clean sleep would brick
-the button (learned the hard way). The brown-out detector is enabled at 1.8V while awake (clean
-resets instead of undefined behavior at low voltage, and it preserves SRAM so the cookie check is
-reliable) and disabled in software during sleep via `BODCR` (to keep standby current at ~4 µA).
+Because any unexpected reset would also replay the show, the firmware plays only on a power-on
+reset, which it reads from the `PORF` flag in `MCUSR` at boot. A press dead-shorts the battery and
+collapses VCC to ~0V, so on release the chip sees a genuine power-on (`PORF`). A worn battery
+sagging below 1.8V under LED load only browns out to the BOD threshold — the LED load drops the
+instant the MCU resets, so VCC never reaches the power-on level — which sets `BORF` but not `PORF`.
+The firmware treats anything other than `PORF` as an interrupted show and goes straight back to
+sleep, which makes a reset-relight loop impossible. Reading the reset cause (rather than leftover
+SRAM state) means the decision depends only on VCC having reached ~0V, which every press does no
+matter how briefly the button is held — so short and long presses behave identically. The
+brown-out detector is enabled at 1.8V while awake (clean resets instead of undefined behavior at
+low voltage) and disabled in software during sleep via `BODCR` (to keep standby current at ~4 µA).
 
 ## BOM
 

@@ -7,48 +7,49 @@
 #define LED_PWM_STEP_MS 5
 // LED brightness duty cycle (0-255). Lower duty = less battery sag + longer
 // battery life. The LEDs have no series resistance, so this is the only
-// current limiting we control.
-#define LED_DUTY_MAX 160
+// current limiting we control. Kept conservative so the bright phase doesn't
+// sag a cell weakened by the wake dead-short (see the settle phase below).
+#define LED_DUTY_MAX 120
 // Subtle "glow" effect: breathe between LED_DUTY_MIN and LED_DUTY_MAX.
-// Show duration = LED_GLOW_CYCLES * 2 * (MAX - MIN) * LED_GLOW_STEP_MS,
-// 5 cycles * 2 * 96 steps * 10ms = ~9.6s.
+// Show duration = LED_GLOW_CYCLES * 2 * (MAX - MIN) * LED_GLOW_STEP_MS.
 #define LED_DUTY_MIN 64
 #define LED_GLOW_CYCLES 5
 #define LED_GLOW_STEP_MS 10
 
-// Magic cookie kept in .noinit SRAM, which survives any reset where VCC does
-// not fully collapse. Used to detect a show interrupted by a reset (battery
-// sag browning out the MCU mid-show): in that case skip the show and sleep,
-// so a reset-relight loop cannot sustain itself.
-//
-// IMPORTANT: the show must play on any *other* cookie state, including
-// scrambled SRAM. The button wakes the chip by collapsing VCC to ~0V (dead
-// short through R1), which destroys SRAM -- so a button press cannot leave
-// behind any "positive proof" to check for. Requiring a valid cookie to play
-// (fail-dark) bricks the button. Only the BOD reset at 1.8V preserves SRAM,
-// which is what makes the COOKIE_RUNNING check reliable.
-#define COOKIE_RUNNING 0xB4
-#define COOKIE_DONE 0x5A
-uint8_t cookie __attribute__((section(".noinit")));
-uint8_t cookie_inv __attribute__((section(".noinit")));
-
-static inline uint8_t cookie_is(uint8_t value)
-{
-  return cookie == value && cookie_inv == (uint8_t)~value;
-}
-
-static inline void cookie_set(uint8_t value)
-{
-  cookie = value;
-  cookie_inv = ~value;
-}
+// Battery-recovery soft start. A press wakes the MCU by dead-shorting the
+// CR2032 through R1; a long press holds that short for seconds and depresses
+// the cell's voltage. The board can't sense VCC (the ATtiny13A has no
+// bandgap-vs-VCC ADC path and no divider is wired), so rather than measure, we
+// open the show at a low duty and hold there: the LED current is small, so the
+// depressed cell climbs back under this light load before the bright phase
+// loads it. Without this the show sags the weakened cell below the 1.8V BOD
+// and the chip resets mid-show -- a bright frame snapping to black. A fresh
+// cell (short press) is already recovered, so this just reads as a dim
+// soft-start. Lengthen LED_SETTLE_MS if a long press still cuts out.
+#define LED_DUTY_SETTLE 24
+#define LED_SETTLE_MS 1200
 
 int main(void)
 {
   // Setup.
 
-  // Clear reset flags, then disable any previously set watchdogs. With WDRF
-  // set, the watchdog cannot be disabled, so MCUSR must be cleared first.
+  // Snapshot the reset cause, then clear MCUSR (with WDRF set the watchdog
+  // cannot be disabled, so MCUSR must be cleared before wdt_disable).
+  //
+  // This is how we tell a real button press apart from a brown-out that
+  // interrupted the show, so a worn battery can't get stuck relighting:
+  //
+  // - A press dead-shorts the battery through R1, collapsing VCC to ~0V. On
+  //   release VCC rises from zero, which is a power-on reset (PORF set).
+  // - A mid-show brown-out only sags VCC to the 1.8V BOD threshold; the moment
+  //   the MCU resets, the LED pin releases, the load drops, and VCC recovers
+  //   without ever reaching the power-on level. That sets BORF, never PORF.
+  //
+  // So PORF means "play the show" and its absence means "a reset interrupted
+  // us -- go back to sleep." Unlike the SRAM state this replaced, PORF only
+  // cares that VCC reached ~0V, which every press does regardless of how long
+  // the button is held, so short and long presses behave identically.
+  uint8_t reset_flags = MCUSR;
   MCUSR = 0;
   wdt_reset();
   wdt_disable();
@@ -67,11 +68,11 @@ int main(void)
   DDRB &= ~((1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB4));
   PORTB |= (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB4);
 
-  // Skip the show only if it was interrupted by a reset mid-show.
-  if (!cookie_is(COOKIE_RUNNING))
+  // Play the show only on a real power-on (button press). Any other reset
+  // cause -- a mid-show brown-out, the ISP reset line -- skips straight to
+  // sleep, so a sagging battery can't sustain a reset-relight loop.
+  if (reset_flags & (1 << PORF))
   {
-    cookie_set(COOKIE_RUNNING);
-
     // Set PB0 as output, driven low.
     DDRB |= (1 << PB0);
     PORTB &= ~(1 << PB0);
@@ -82,8 +83,18 @@ int main(void)
     TCCR0A = (1 << COM0A1) | (1 << WGM01) | (1 << WGM00);
     TCCR0B = (1 << CS01);
 
-    // Ramp brightness up gently to avoid an inrush current step.
-    for (uint8_t duty = 0; duty < LED_DUTY_MAX; duty++)
+    // Soft start to a low duty, then hold there to let a cell weakened by the
+    // wake dead-short recover before the bright phase (see LED_SETTLE_MS).
+    for (uint8_t duty = 0; duty <= LED_DUTY_SETTLE; duty++)
+    {
+      OCR0A = duty;
+      _delay_ms(LED_PWM_STEP_MS);
+    }
+    for (uint16_t held = 0; held < LED_SETTLE_MS; held += LED_GLOW_STEP_MS)
+      _delay_ms(LED_GLOW_STEP_MS);
+
+    // Ramp the rest of the way up to full brightness.
+    for (uint8_t duty = LED_DUTY_SETTLE + 1; duty < LED_DUTY_MAX; duty++)
     {
       OCR0A = duty;
       _delay_ms(LED_PWM_STEP_MS);
@@ -122,16 +133,7 @@ int main(void)
     TCCR0A = 0;
     TCCR0B = 0;
     PORTB &= ~(1 << PB0);
-
-    // Let the battery voltage recover before declaring the show done: any
-    // reset landing in this window still reads as a mid-show crash and stays
-    // dark. A real button press scrambles SRAM and plays regardless, so this
-    // costs nothing.
-    _delay_ms(500);
   }
-
-  // From here on, any reset means the button was pressed: run the show.
-  cookie_set(COOKIE_DONE);
 
   // Set sleep mode to power-down mode
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);

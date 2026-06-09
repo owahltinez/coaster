@@ -82,8 +82,9 @@ hand-solder the SOIC-8s.
 - [ ] BOD: configured via FUSE.BODCFG at programming time — enabled at 1.8V, sampled mode in sleep
 - [ ] Debounce in firmware (~20ms); C3 is belt-and-suspenders
 - [ ] Show logic carries over: ramp, breathe ×5 ending on the dim phase, squared perceptual fade
-- [ ] The v0.2 cookie machinery is no longer load-bearing (wake no longer destroys state); keep a
-      minimal interrupted-show check for robustness, but fail-dark logic is now safe to use if desired
+- [ ] The v0.2 `PORF`-vs-brown-out check is no longer load-bearing (a GPIO/pin-interrupt wake is a
+      normal wake, not a power-on); keep a minimal interrupted-show check for robustness, but
+      fail-dark logic is now safe to use if desired
 - [ ] Programming: avrdude 7.x supports serialupdi (any USB-serial adapter + 1 resistor), or pymcuprog
 
 ## First-article validation (before deploying all 30)
