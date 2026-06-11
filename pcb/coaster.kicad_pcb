@@ -359,7 +359,7 @@
 				)
 			)
 		)
-		(property "Value" "KT-0603W"
+		(property "Value" "XL-1608UWC-04"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "8abc40ad-c5ec-431f-a5d3-22d6981b63a5")
@@ -2263,7 +2263,7 @@
 				)
 			)
 		)
-		(property "Value" "KT-0603W"
+		(property "Value" "XL-1608UWC-04"
 			(at 0 1.43 270)
 			(layer "F.Fab")
 			(uuid "6a5f78c1-faed-40fe-a7e7-9f9cbca0957f")
@@ -2459,7 +2459,7 @@
 				)
 			)
 		)
-		(property "Value" "KT-0603W"
+		(property "Value" "XL-1608UWC-04"
 			(at 0 1.43 180)
 			(layer "F.Fab")
 			(uuid "4e1c2d69-2f11-45ce-bd2a-8e36758d2351")
@@ -2922,7 +2922,7 @@
 				)
 			)
 		)
-		(property "Value" "KT-0603W"
+		(property "Value" "XL-1608UWC-04"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "4c0a6f35-5b0e-4f59-898e-1402333d3a47")

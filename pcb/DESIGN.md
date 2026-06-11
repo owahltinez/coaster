@@ -57,7 +57,7 @@ Notes:
 |-----|------|---------|--------|------|-----------|
 | U1 | ATtiny402-SSN | SOIC-8 | C2053235 (-SSFR) | Extended | 0.65 |
 | Q1 | AO3400A N-MOSFET | SOT-23 | C20917 | Basic | 0.01 |
-| L1–L4 | White LED KT-0603W | 0603 | C2290 | Basic | 0.006 |
+| L1–L4 | White LED XL-1608UWC-04 | 0603 | C965808 | Extended | 0.01 |
 | R1–R4 | 150Ω | 0603 | any basic | Basic | 0.001 |
 | R5 | 100kΩ | 0603 | any basic | Basic | 0.001 |
 | C1 | 100nF X7R | 0603 | any basic | Basic | 0.001 |
@@ -66,9 +66,15 @@ Notes:
 | SW1 | Tactile switch TS-1187A-B-A-B | SMD | C318884 | Extended | 0.02 |
 | BT1 | CR2016 holder MY-2016-02 | SMD | C2979176 | Extended | 0.16 |
 
-Per-board parts ≈ $0.94 USD. Extended parts: U1 + BT1 + SW1 → $3 feeder fee each per
-order. Option: leave BT1 off the assembly and hand-solder it (two large pads) to save
-the fee.
+Per-board parts ≈ $0.96 USD. Extended parts: U1 + BT1 + SW1 + L1–L4 → $3 feeder fee
+each per order. Option: leave BT1 off the assembly and hand-solder it (two large pads)
+to save the fee.
+
+L1–L4 are the XL-1608UWC-04 rather than the basic-catalog KT-0603W: same 0603
+footprint, same 120° angle, coin-cell-friendly Vf, but 400 min / 630 typ mcd @ 20mA
+versus the KENTO's 173–207 — about 3x the light for the same current, which matters
+more than anywhere else in the BOM since the entire point of the device is this glow.
+The $3 feeder fee is $0.10/board at qty 30.
 
 SW1 stays the TS-1187A despite the feeder fee: the enclosure flexure is dimensioned
 around this switch's body height and actuation force (and the v0.2.1 enclosure shipped
@@ -83,6 +89,9 @@ gives 2+ years at a few presses a day — µA sleep dominates and presses are no
 ## Ordering plan
 
 30 boards, JLCPCB Economic assembly (30 is the Economic cap — the per-unit sweet spot).
+Order with **white soldermask** (same price): the board surface sits under the clear
+shield and acts as the reflector behind the LEDs — dark mask absorbs a large fraction
+of the show's light for free.
 Estimated ~$100–105 AUD shipped (economy mail). Confirm ATtiny402 stock/tier in the
 JLCPCB parts library at order time; if out of stock, order assembly without U1 and
 hand-solder the SOIC-8s.
