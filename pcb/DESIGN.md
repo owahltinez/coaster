@@ -40,6 +40,9 @@ UPDI:     U1-6 (PA0), J1-1
 ```
 
 Notes:
+- Q1 must be a logic-level FET (AO3400A: Vgs(th) 0.65-1.45V, fully enhanced at 2.5V).
+  A 2N7002 (Vgs(th) up to 2.5V worst-case) would be driven barely above threshold for
+  most of the cell's life and could read as dim/flickering LEDs on a worn battery.
 - R5 (gate pulldown) keeps the LEDs off while PA3 floats during programming/reset.
 - Decoupling C1 (100nF X7R) must sit physically adjacent to U1 pins 1/8.
 - C2 (bulk, ≥22µF MLCC) anywhere near the battery holder.
@@ -53,7 +56,7 @@ Notes:
 | Ref | Part | Package | LCSC # | Tier | ~Unit USD |
 |-----|------|---------|--------|------|-----------|
 | U1 | ATtiny402-SSN | SOIC-8 | C2053235 (-SSFR) | Extended | 0.65 |
-| Q1 | 2N7002 N-MOSFET | SOT-23 | pick basic-catalog variant | Basic | 0.01 |
+| Q1 | AO3400A N-MOSFET | SOT-23 | C20917 | Basic | 0.01 |
 | L1–L4 | White LED KT-0603W | 0603 | C2290 | Basic | 0.006 |
 | R1–R4 | 150Ω | 0603 | any basic | Basic | 0.001 |
 | R5 | 100kΩ | 0603 | any basic | Basic | 0.001 |

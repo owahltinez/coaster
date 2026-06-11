@@ -848,7 +848,7 @@
 				)
 			)
 		)
-		(property "Value" "2N7002"
+		(property "Value" "AO3400A"
 			(at 0 2.4 90)
 			(layer "F.Fab")
 			(uuid "5e810a2a-bb8f-4c80-943c-685f06978c78")

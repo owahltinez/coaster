@@ -18,7 +18,7 @@ Part = namedtuple("Part", "footprint value")
 # geometry extracted from the v0.2 board); the rest are KiCad's own libraries.
 PARTS = {
     "U1":  Part("Package_SO:SOIC-8_3.9x4.9mm_P1.27mm", "ATtiny402-SSN"),
-    "Q1":  Part("Package_TO_SOT_SMD:SOT-23", "2N7002"),
+    "Q1":  Part("Package_TO_SOT_SMD:SOT-23", "AO3400A"),
     "BT1": Part("coaster:MY-2016-02", "CR2016"),
     "SW1": Part("coaster:TS-1187A", "TS-1187A-B-A-B"),
     "J1":  Part("Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical", "UPDI"),
