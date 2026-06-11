@@ -108,3 +108,5 @@ hand-solder the SOIC-8s.
 - [ ] Worn-battery test: show degrades gracefully (dims) with no reset loop
 - [ ] Bench-supply + series-resistor test (30–50Ω) simulating a dying cell
 - [ ] Press during show, long-press, rapid double-press behave sanely
+- [ ] Splash test: assembled unit, dribble water over the flexure -- the shield sheds it,
+      nothing reaches the PCB, battery contact stays dry, button still clicks

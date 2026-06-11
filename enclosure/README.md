@@ -28,6 +28,21 @@ The STL files are the 3D printing assets; the STEP files are for CAD
 interference checks against the board (`make -C ../pcb review` exports the
 matching `coaster.step` board model).
 
+## Liquid strategy
+
+The coaster lives under sweating glasses, and the spiral cuts in the flexure are an open
+path into the shell. The Shield is the answer: a continuous membrane over the whole PCB,
+so drips and condensation that get through the flexure land on it and shed outward
+instead of reaching the electronics, the bare battery contact, or the switch. It is
+printed in clear PETG (not PLA like the rest of the shell): the LED light has to pass
+through it, and a wet-environment membrane should not hydrolyze.
+
+The shield currently snap-fits around the center press-post by hoop tension, which has
+two long-term weaknesses: plastic creep slowly relaxes the grip, and every button press
+flexes the already-stressed hole edge. Planned change (CAD TODO): a shallow retention
+groove in the post at shield height, so the shield drops in over a chamfered tip and
+seats relaxed -- located by shape, with no standing stress.
+
 ## Design constraints (v0.2 board, which this enclosure fits)
 
 - Board outline: 50 x 50 mm, 3 mm mounting holes in all four corners at
