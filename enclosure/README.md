@@ -28,6 +28,11 @@ The STL files are the 3D printing assets; the STEP files are for CAD
 interference checks against the board (`make -C ../pcb review` exports the
 matching `coaster.step` board model).
 
+Material use (sliced at 0.20mm / 0.4 nozzle / 15% infill, and confirmed within
+2% by a measured 3-coaster print): Top 8.8 cm³ (~11g PLA), Bottom 10.7 cm³
+(~13g PLA), Shield 3.7 cm³ (~4.6g PETG) — about 29g and $0.60 of filament per
+coaster.
+
 ## Liquid strategy
 
 The coaster lives under sweating glasses, and the spiral cuts in the flexure are an open
