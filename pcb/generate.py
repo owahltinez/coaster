@@ -162,8 +162,15 @@ def build_board():
         via("GND", vx, vy)
     track("GND", [(28.3, 26.85), (28.3, 28.0)], 0.4)
     via("GND", 28.3, 28.0)
-    via("GND", 8.5, 36.0)
-    via("GND", 11.5, 36.0)
+
+    # Battery return: the cell presses directly on BT1 pad 2 (bare copper), so
+    # the stitching vias stay outside the 10mm contact circle -- drill dimples
+    # or flux inside it would sit right at the contact surface. Spokes run from
+    # the pad center out past the circle to vias into the B.Cu pour.
+    bt = pad_pos("BT1", "2")
+    for vx in (3.8, 16.2):
+        track("GND", [bt, (vx, bt[1])], 0.4)
+        via("GND", vx, bt[1])
 
     # Silkscreen: hide passive refdes (assembly uses the CPL file), keep U1/Q1,
     # label the programming pads, and run the documentation down the right margin.
