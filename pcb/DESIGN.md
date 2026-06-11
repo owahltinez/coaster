@@ -63,12 +63,18 @@ Notes:
 | C1 | 100nF X7R | 0603 | any basic | Basic | 0.001 |
 | C2 | 22µF MLCC | 0805 | any basic | Basic | 0.01 |
 | C3 | 100nF (debounce, optional) | 0603 | any basic | Basic | 0.001 |
-| SW1 | Tactile switch | SMD | prefer a basic-catalog switch over TS-1187A | Basic if possible | 0.02 |
+| SW1 | Tactile switch TS-1187A-B-A-B | SMD | C318884 | Extended | 0.02 |
 | BT1 | CR2016 holder MY-2016-02 | SMD | C2979176 | Extended | 0.16 |
 
-Per-board parts ≈ $0.94 USD. Extended parts: U1 + BT1 (+SW1 if no basic alternative) →
-$3 feeder fee each per order. Option: leave BT1 off the assembly and hand-solder it
-(two large pads) to save the fee.
+Per-board parts ≈ $0.94 USD. Extended parts: U1 + BT1 + SW1 → $3 feeder fee each per
+order. Option: leave BT1 off the assembly and hand-solder it (two large pads) to save
+the fee.
+
+SW1 stays the TS-1187A despite the feeder fee: the enclosure flexure is dimensioned
+around this switch's body height and actuation force (and the v0.2.1 enclosure shipped
+against it), and its footprint is the one extracted from the manufactured v0.2 board.
+A basic-catalog switch would save ~$0.10/board at qty 30 and risk re-validating the
+press feel.
 
 BT1 is a CR2016, not CR2032: same Ø20mm cell, but the MY-2016-02 holder is 2.2mm tall vs the
 MY-2032-12's 3.6mm, slimming the enclosure (the holder was the tallest component). ~75mAh still
