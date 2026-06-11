@@ -105,6 +105,9 @@ hand-solder the SOIC-8s.
 - [ ] Programming via UPDI header works
 - [ ] Sleep current measured < 5µA
 - [ ] Show plays on button press; press costs no measurable charge
+- [ ] Brightness check through an actual glass: 150R per LED is a starting value, not a
+      decision -- v0.2 brightness was set by battery sag, v0.3's is set by R1-R4. If too
+      dim, rework toward 100R and re-measure the worn-battery behavior
 - [ ] Worn-battery test: show degrades gracefully (dims) with no reset loop
 - [ ] Bench-supply + series-resistor test (30–50Ω) simulating a dying cell
 - [ ] Press during show, long-press, rapid double-press behave sanely
