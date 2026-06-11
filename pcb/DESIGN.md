@@ -101,7 +101,9 @@ price): the board face sits under the clear shield and is the reflector behind t
 LEDs — dark mask absorbs a large fraction of the show's light for free. Confirm
 ATtiny202 stock/tier in the JLCPCB parts library at order time; if out of stock, the
 ATtiny402 is a drop-in substitute (same firmware binary), or order assembly without U1
-and hand-solder the SOIC-8s.
+and hand-solder the SOIC-8s. BT1's pads are symmetric but the part is not: the
+insertion mouth must face the west board edge (cell slides in/out over bare board) —
+verify the holder's orientation on the assembly preview.
 
 ## Firmware port checklist (ATtiny13A → ATtiny202)
 

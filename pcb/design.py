@@ -78,6 +78,10 @@ PLACEMENT = {
     "C2": (10, 22, 0),
     "C3": (13.5, 7.0, 0),
     "J1": (42, 5, 270),
-    "BT1": (10, 36, 0),
+    # BT1's frame (22.8x15.2mm) and cell (O20) dwarf its pads; this spot keeps
+    # the cell rim 3mm inside the board edge, the frame corner clear of the H2
+    # mounting hardware, and the south pad clear of R4. Mouth faces the west
+    # board edge so the cell slides in/out over bare board.
+    "BT1": (13, 37.8, 0),
     "H1": (3, 3, 0), "H2": (3, 47, 0), "H3": (47, 3, 0), "H4": (47, 47, 0),
 }

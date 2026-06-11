@@ -168,9 +168,9 @@ def build_board():
     # or flux inside it would sit right at the contact surface. Spokes run from
     # the pad center out past the circle to vias into the B.Cu pour.
     bt = pad_pos("BT1", "2")
-    for vx in (3.8, 16.2):
-        track("GND", [bt, (vx, bt[1])], 0.4)
-        via("GND", vx, bt[1])
+    for dx in (-6.2, 6.2):
+        track("GND", [bt, (bt[0] + dx, bt[1])], 0.4)
+        via("GND", bt[0] + dx, bt[1])
 
     # Silkscreen: hide passive refdes (assembly uses the CPL file), keep U1/Q1,
     # label the programming pads, and run the documentation down the right margin.
