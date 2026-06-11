@@ -7,14 +7,17 @@
 build:
 	$(MAKE) -C firmware build
 	$(MAKE) -C pcb build
+	$(MAKE) -C enclosure build
 
 test:
 	$(MAKE) -C firmware test
 	$(MAKE) -C pcb test
+	$(MAKE) -C enclosure test
 
 clean:
 	$(MAKE) -C firmware clean
 	$(MAKE) -C pcb clean
+	$(MAKE) -C enclosure clean
 
 # firmware only: program the chip, set fuses, recover a wedged programmer
 flash fuses reset:

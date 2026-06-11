@@ -7,7 +7,14 @@
 coaster.net
 coaster.step
 coaster-1to1.pdf
+coaster-top.step
+coaster-top.stl
+coaster-bottom.step
+coaster-bottom.stl
+coaster-shield.step
+coaster-shield.stl
 renders/
 *.FCBak
 *.FCStd1
 __pycache__/
+dist/

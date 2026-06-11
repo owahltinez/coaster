@@ -14,12 +14,13 @@ for the ATTINY13A it consumes about 4 µA. While the light is on, the device con
 
 - `firmware/` — AVR C firmware and its build/flash Makefile.
 - `pcb/` — v0.3 board design (KiCad, generated from python scripts) and footprints.
-- `enclosure/` — 3D-printed shell (design constraints; CAD source TODO).
+- `enclosure/` — 3D-printed shell (FreeCAD source + STEP/STL export).
 
-Both subdirectories share the same verbs, and the top-level Makefile forwards to both:
-`make build` (firmware hex + board), `make test` (flash-fit check + board DRC), `make clean`.
-Domain-specific verbs forward to the relevant subdirectory: `make flash` / `make fuses` /
-`make reset` (firmware programming), `make review` (board render / PDF / STEP).
+All subdirectories share the same verbs, and the top-level Makefile forwards to each:
+`make build` (firmware hex + board + enclosure exports), `make test` (flash-fit check +
+board DRC + enclosure solidity check), `make clean`. Domain-specific verbs forward to the
+relevant subdirectory: `make flash` / `make fuses` / `make reset` (firmware programming),
+`make review` (board render / PDF / STEP).
 
 ## How it works
 
@@ -41,7 +42,7 @@ low voltage) and disabled in software during sleep via `BODCR` (to keep standby 
 
 ## BOM
 
-> TODO: Add 3D printing source files and estimated costs.
+> TODO: Add estimated costs for the 3D printed shell.
 
 All prices are in USD (as of June 2026). LCSC prices are at low-volume price breaks; single-unit
 costs are slightly higher.
