@@ -105,16 +105,22 @@ and hand-solder the SOIC-8s.
 
 ## Firmware port checklist (ATtiny13A → ATtiny202)
 
-- [ ] PWM: TCA0 in single-slope PWM, WO0 on PA3 (default PORTMUX routing)
-- [ ] Button: PA6 input, internal pull-up (PORTA.PIN6CTRL), falling-edge interrupt, wake from power-down
-- [ ] Sleep: SLPCTRL power-down; expected sleep current ~0.1–2µA (BOD in sampled mode)
-- [ ] BOD: configured via FUSE.BODCFG at programming time — enabled at 1.8V, sampled mode in sleep
-- [ ] Debounce in firmware (~20ms); C3 is belt-and-suspenders
-- [ ] Show logic carries over: ramp, breathe ×5 ending on the dim phase, squared perceptual fade
-- [ ] The v0.2 `PORF`-vs-brown-out check is no longer load-bearing (a GPIO/pin-interrupt wake is a
-      normal wake, not a power-on); keep a minimal interrupted-show check for robustness, but
-      fail-dark logic is now safe to use if desired
-- [ ] Programming: avrdude 7.x supports serialupdi (any USB-serial adapter + 1 resistor), or pymcuprog
+- [x] PWM: TCA0 in single-slope PWM, WO0 on PA3 (default PORTMUX routing); duty updates
+      via CMP0BUF; bright phase at full duty now that R1–R4 set the current
+- [x] Button: PA6 input, internal pull-up (PORTA.PIN6CTRL), falling-edge interrupt, wake from power-down
+- [x] Sleep: SLPCTRL power-down; expected sleep current ~0.1–2µA (BOD in sampled mode)
+- [x] BOD: configured via FUSE.BODCFG at programming time (`make fuses`, 0x06) — enabled
+      at 1.8V, sampled mode in sleep
+- [x] Debounce in firmware (20ms, also filters release-bounce edges); C3 is belt-and-suspenders
+- [x] Show logic carries over: ramp, breathe ×5 ending on the dim phase, squared perceptual
+      fade (~8s total; the v0.2 battery-recovery settle phase is gone — presses no longer
+      touch the supply rail)
+- [x] Reset logic: show on `PORF` only (battery insertion = self-test); a brown-out reset
+      skips to sleep so a dying cell cannot reset-relight; button wakes are not resets at all
+- [x] Programming: avrdude serialupdi (any USB-serial adapter + 1 resistor), `make flash`
+
+Builds at 422 / 2048 bytes with avr-gcc 14. Hardware verification of all of the above
+lives in the first-article checklist below.
 
 ## First-article validation (before deploying all 30)
 
