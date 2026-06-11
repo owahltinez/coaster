@@ -4,11 +4,9 @@ Very simple battery-operated device. When you push a button, the light turns on 
 and then it turns off. It is designed to be used as a coaster such that, when gently pushing a glass
 down on the device, the light activates making the contents of the glass glow.
 
-Pressing down on the coaster triggers a ~11 second light show: the LEDs ramp up, "breathe" gently
-between two brightness levels five times, ramp back down, and the device returns to deep sleep.
-
-Because there's no on/off switch, the device remains on but it will do so in low power mode which
-for the ATTINY13A it consumes about 4 µA. While the light is on, the device consumes under 10 mA.
+Pressing down on the coaster triggers a ~8 second light show: the LEDs ramp up to full
+brightness, "breathe" gently five times, and fade back to black. Between shows the device
+sleeps at ~1 µA — there is no on/off switch and none is needed.
 
 ## Repository layout
 
@@ -19,66 +17,79 @@ for the ATTINY13A it consumes about 4 µA. While the light is on, the device con
 All subdirectories share the same verbs, and the top-level Makefile forwards to each:
 `make build` (firmware hex + board + enclosure exports), `make test` (flash-fit check +
 board DRC + enclosure solidity check), `make clean`. Domain-specific verbs forward to the
-relevant subdirectory: `make flash` / `make fuses` / `make reset` (firmware programming),
+relevant subdirectory: `make flash` / `make fuses` (firmware programming),
 `make review` (board render / PDF / STEP).
 
 ## How it works
 
-The button is wired directly across the battery (through R1), so pressing it collapses the supply
-voltage and power-cycles the microcontroller. Booting up *is* the wake mechanism: the firmware runs
-the light show once on every boot, then enters power-down sleep until the next press.
+The button connects an MCU pin (with its internal pull-up) to ground. Pressing it fires a
+falling-edge interrupt on one of the ATtiny202's fully-asynchronous pins, which wakes the
+chip from power-down sleep with the main clock stopped — a press costs effectively no
+charge. The firmware debounces the edge, plays the show over hardware PWM through a
+MOSFET driving four series-resistored LEDs, and goes back to sleep.
 
-Because any unexpected reset would also replay the show, the firmware plays only on a power-on
-reset, which it reads from the `PORF` flag in `MCUSR` at boot. A press dead-shorts the battery and
-collapses VCC to ~0V, so on release the chip sees a genuine power-on (`PORF`). A worn battery
-sagging below 1.8V under LED load only browns out to the BOD threshold — the LED load drops the
-instant the MCU resets, so VCC never reaches the power-on level — which sets `BORF` but not `PORF`.
-The firmware treats anything other than `PORF` as an interrupted show and goes straight back to
-sleep, which makes a reset-relight loop impossible. Reading the reset cause (rather than leftover
-SRAM state) means the decision depends only on VCC having reached ~0V, which every press does no
-matter how briefly the button is held — so short and long presses behave identically. The
-brown-out detector is enabled at 1.8V while awake (clean resets instead of undefined behavior at
-low voltage) and disabled in software during sleep via `BODCR` (to keep standby current at ~4 µA).
+Two details carry hard-won lessons from v0.2:
 
-## BOM
+- The show also plays once when the battery is inserted (a power-on reset doubles as a
+  built-in self test), but *only* on a power-on reset: a brown-out reset means a dying
+  cell sagged below 1.8V mid-show, and playing again would loop the cell to death — so a
+  brown-out goes straight back to sleep and the coaster simply dims gracefully as the
+  battery wears out.
+- Wake edges that turn out not to be presses (e.g. contact bounce while lifting a glass
+  off a held-down button) are filtered by a 20ms debounce check, so the show plays on
+  deliberate presses only.
 
-> TODO: Add estimated costs for the 3D printed shell.
+## Hardware
 
-All prices are in USD (as of June 2026). LCSC prices are at low-volume price breaks; single-unit
-costs are slightly higher.
+![coaster v0.3 board](pcb/board.png)
 
-| Part                     | Part Number      | Source            	| Count 	| Unit Price 	| Subtotal 	|
-|--------------------------|------------------|-------------------	|-------	|------------	|----------	|
-| ATTINY13A (SOIC-8)\*     | ATTINY13A-SSUR   | [Digikey][attiny] 	| 1     	| $0.750     	| $0.750   	|
-| CR2032 Battery           | -                | [Amazon][battery] 	| 1     	| ~$1.000    	| ~$1.000  	|
-| White LED (0603)         | KT-0603W (C2290) | [LCSC][led]       	| 4     	| $0.006     	| $0.024   	|
-| Coin Cell Battery Holder | MY-2032-12       | [LCSC][holder]    	| 1     	| $0.067     	| $0.067   	|
-| Push Button (SMD)        | TS-1187A-B-A-B   | [LCSC][button]    	| 1     	| $0.011     	| $0.011   	|
-| 0.1Ω Resistor (1206)     | R1, R2           | -                 	| 2     	| ~$0.010    	| ~$0.020  	|
+The v0.3 design (KiCad) lives in `pcb/`:
 
-Total unit cost, excluding shipping and the 3D printed shell: **~$1.87**.
+- `pcb/design.py` is the circuit as data — parts, placements, and the netlist defined
+  once. This is the file to read or edit; it is the source of truth.
+- `pcb/DESIGN.md` is the design specification: pin map, BOM with part rationale,
+  ordering plan, and the validation checklists.
+- `pcb/generate.py` turns `design.py` into `coaster.kicad_pcb` (committed for
+  convenience). `make build` regenerates the board and validates connectivity; `make
+  test` runs DRC; `make review` produces a board render, a 1:1 printable PDF, and a STEP
+  model for CAD fit checks.
+- `pcb/coaster.pretty/` — project footprints with pad geometry extracted from the
+  manufactured v0.2 board (battery holder, tactile switch).
 
-\*The ATTINY13A is not recommended for new designs, but the SOIC variant remains stocked and
-cheap. For a new design, consider one of the newer tinyAVR series microcontrollers or the
-ATTINY10, which are in active production.
+There is no schematic: JLCPCB takes Gerbers + BOM + CPL (not a schematic), the board is
+built and checked directly against `design.py`, and `design.py` itself documents the
+circuit — so a derived schematic would add nothing.
 
-[attiny]: https://www.digikey.com/en/products/detail/microchip-technology/ATTINY13A-SSUR/2522791
-[holder]: https://lcsc.com/product-detail/Battery-Connectors_MYOUNG-MY-2032-12_C964833.html
-[button]: https://www.lcsc.com/product-detail/C318884.html
-[led]: https://www.lcsc.com/product-detail/Light-Emitting-Diodes-LED_0603White-light_C2290.html
-[battery]: https://www.amazon.com.au/CR2032-Batteries-Packaging-Calculator-Electronic/dp/B0CP7SYQ3W/
+The previous revision (v0.2: ATtiny13A, EasyEDA, CR2032) is archived at release
+[v0.2.1](https://github.com/owahltinez/coaster/releases/tag/v0.2.1), including its
+firmware, schematic renderings, and 3D printing assets.
+
+### Production
+
+All SMD parts are LCSC-stocked, so the board can be fabricated and assembled through
+JLCPCB — the only hand-assembly per unit is dropping a CR2016 into the holder. Order
+with **white soldermask** (the board face is the reflector behind the LEDs; see the
+ordering plan in [pcb/DESIGN.md](pcb/DESIGN.md)).
+
+Rough estimates as of June 2026, assembled and shipped: **~A$3.30/board at qty 30,
+~A$2.70 at qty 100** (~US$2.15/$1.75). A finished coaster — board, name-brand CR2016,
+and ~29g of printed shell — lands around **A$5.25 at qty 30**. Prices drift; get a real
+quote from the [JLCPCB quote tool](https://jlcpcb.com/quote) and confirm ATtiny202
+stock at order time (the ATtiny402 is a firmware-compatible drop-in substitute).
 
 ## Software
 
-To build the code, you need to first install `avrdude`, `avr-libc` and `avr-gcc`. Then, you can run:
+To build the firmware you need `avr-gcc` (≥ 12, for ATtiny202 support; `avr-gcc@14`
+from the [osx-cross/avr](https://github.com/osx-cross/homebrew-avr) tap works) and
+`avrdude` (≥ 7, for `serialupdi`). Then:
 
 ```bash
-make -C firmware build   # or `make build` from the repo root to build firmware + board + enclosure
+make -C firmware build   # or `make build` from the repo root to build everything
 ```
 
-The board build needs KiCad (`kicad-cli` and the `pcbnew` python bindings) and the enclosure
-build needs FreeCAD (`freecadcmd`). On Linux both land on PATH; macOS app bundles don't expose
-their CLIs, so symlink them once:
+The board build needs KiCad (`kicad-cli` and the `pcbnew` python bindings) and the
+enclosure build needs FreeCAD (`freecadcmd`). On Linux both land on PATH; macOS app
+bundles don't expose their CLIs, so symlink them once:
 
 ```bash
 ln -s /Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli /opt/homebrew/bin/kicad-cli
@@ -88,122 +99,49 @@ ln -s /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd /opt/homebrew/
 
 ### Flashing
 
-To flash the code to the ATTINY13A chip, you'll need a USB programmer like [this one][usbasp].
+No dedicated programmer needed: UPDI works over any USB-serial adapter with a single
+~1kΩ resistor bridging the adapter's TX to RX, and RX wired to the board's UPDI pad
+(plus VDD and GND — the J1 pads are labeled on the silkscreen).
 
 ```bash
-make flash
+make flash   # writes main.hex over serialupdi
+make fuses   # once per chip: brown-out detector at 1.8V, sampled in sleep
 ```
 
-The fuses must be set once per chip to enable the 1.8V brown-out detector (factory default leaves
-it disabled, which allows undefined behavior when the battery sags):
+The fuses matter: the factory default leaves the BOD disabled, which allows undefined
+behavior when the battery sags, and the firmware's brown-out logic depends on it.
 
-```bash
-avrdude -c usbasp -p attiny13a -B 125kHz -U hfuse:w:0xfd:m
-```
+Gotchas:
 
-Expected fuse values: `lfuse=0x6A` (factory default: 9.6MHz internal oscillator ÷8 = 1.2MHz),
-`hfuse=0xFD` (BOD at 1.8V).
-
-Gotchas learned the hard way:
-
-- **Remove the coin cell before flashing.** The programmer drives 5V onto VCC, which back-feeds
+- **Remove the coin cell before flashing.** The adapter drives VDD and would back-feed
   the (non-rechargeable) lithium cell.
-- **The LEDs hang on the MOSI line** (PB0 doubles as the ISP data-in pin) and clamp it to their
-  forward voltage, which can sit below the logic-high threshold at 5V. If programming fails with
-  `target does not answer` and signature reads as `0x000000`, this is why. A programmer with a
-  3.3V supply jumper avoids the problem entirely.
-- **Writes are reliable at 125kHz but readback isn't** when holding the ISP cable against the
-  board by hand — a flaky MISO contact corrupts reads, not the flash. `make flash` handles this
-  by writing without inline verification and then verifying in a separate pass at 16kHz.
-- **Unplug the programmer from USB before taking the ISP cable off the board.** Hot-detaching the
-  cable (transients/shorts on the target side) hangs the USBasp's bit-banged USB stack, and it
-  stops responding (`cannot find USB device`) until physically replugged. `make reset` recovers
-  the milder wedge where the device still enumerates.
-
-[usbasp]: https://www.fischl.de/usbasp/
-
-## Hardware
-
-![coaster v0.3 board](pcb/board.png)
-
-The v0.3 design (KiCad) lives in `pcb/`:
-
-- `pcb/design.py` is the circuit as data — parts, placements, and the netlist defined once. This
-  is the file to read or edit; it is the source of truth.
-- `pcb/generate.py` turns it into `coaster.kicad_pcb` (committed for convenience). `make build`
-  regenerates the board and validates connectivity against `design.py` (every pad on a net or
-  explicitly no-connect); `make test` runs DRC; `make review` produces a board render, a 1:1
-  printable PDF, and a STEP model for CAD fit checks.
-- `pcb/coaster.pretty/` — project footprints with pad geometry extracted from the manufactured
-  v0.2 board (battery holder, tactile switch).
-- The v0.2 design files (EasyEDA source, netlist, schematic SVG, mechanical DXF) live in git
-  history at tag [v0.2.0](https://github.com/owahltinez/coaster/releases/tag/v0.2.0).
-
-There is no schematic: JLCPCB takes Gerbers + BOM + CPL (not a schematic), the board is built and
-checked directly against `design.py`, and `design.py` itself documents the circuit — so a derived
-schematic would add nothing.
-
-v0.2 circuit summary: PB0 drives four parallel white LEDs through R2; the button connects VCC to
-GND through R1 to power-cycle the MCU as a wake mechanism; the 6-pin AVRISP header exposes
-RESET/MISO/MOSI/SCK for in-circuit programming.
-
-### Production
-
-All SMD parts are LCSC-stocked, so the board can be fabricated and assembled through JLCPCB.
-Rough estimates as
-of June 2026: ~$18–20 of fixed fees per order (setup, stencil, feeder loading), ~$0.87 of parts
-and ~$0.05 of assembly per board, with the PCB itself at the ~$2-per-5-boards promotional tier.
-That works out to roughly **$3.00/board at qty 10, $1.85 at qty 30, $1.35 at qty 100** —
-excluding shipping, the battery, and the 3D printed shell. The ISP header is left unpopulated.
-
-Check ATTINY13A-SSUR stock in JLCPCB's parts library before ordering; if their feeder stock is
-empty, the "global sourcing" option (from LCSC/Digikey) adds some cost and lead time. Prices
-drift — get a real quote from the [JLCPCB quote tool](https://jlcpcb.com/quote).
-
-### Known quirks (v0.2) and wishlist for a future revision
-
-> The next revision addressing all of these is specified in [pcb/DESIGN.md](pcb/DESIGN.md).
-
-The current board works, but relies on the firmware to compensate for a few design shortcuts:
-
-- The LEDs have no meaningful series resistance (R2 = 0.1Ω); current is limited only by the
-  battery's internal resistance and the PB0 pin driver. The firmware caps LED duty cycle via PWM
-  to limit average current. A future revision should give each LED a proper series resistor.
-- The button dead-shorts the battery (through R1 = 0.1Ω) to wake the chip. It works, but each
-  press wastes about as much charge as the entire light show. A future revision should wire the
-  button to RESET (or to a GPIO with a pin-change interrupt) instead.
-- There is no decoupling capacitor. Add a 100nF ceramic across VCC/GND next to the MCU, plus a
-  bulk capacitor (~100µF) to buffer the coin cell during LED pulses.
-- Programming requires hand-holding the ISP cable against the board. Pogo-pin pads or a small
-  header footprint would make reflashing a batch much less finicky.
+- That's it. The v0.2 list of ISP gotchas (LEDs clamping MOSI, flaky readback, wedged
+  programmers) died with the ISP header: UPDI shares no pins with anything else on this
+  board, by construction.
 
 ## Power estimates
 
-Assumptions: CR2032 rated at 220 mAh (~190 mAh usable after pulse-load derating), ~10 mA LED
-draw at 100% duty, measured 4 µA sleep current.
+Assumptions: CR2016 rated at 75 mAh (~70 mAh usable), ~8 mA LED draw at 100% duty on a
+fresh cell, ~1 µA sleep current (BOD sampled).
 
-Per event:
-
-| Event                       | Cost      | Notes                                              |
-|-----------------------------|-----------|----------------------------------------------------|
-| Light show (~11 s)          | ~13 µAh   | avg ~40% LED duty + ~0.5 mA MCU active             |
-| Button press (~200 ms)      | ~11 µAh   | dead short through R1; dissipated inside the cell  |
-| Standby (per day)           | ~100 µAh  | 4 µA sleep + ~0.25 µA battery self-discharge       |
-
-The battery's own self-discharge (~1%/year for lithium primary cells) is negligible compared to
-the MCU sleep current, which alone consumes ~35 mAh/year.
+| Event                  | Cost     | Notes                                          |
+|------------------------|----------|------------------------------------------------|
+| Light show (~8 s)      | ~15 µAh  | avg ~60% LED duty + ~1.5 mA MCU active         |
+| Button press           | ~0       | pin-change wake; nothing touches the supply    |
+| Standby (per day)      | ~26 µAh  | ~1 µA sleep + battery self-discharge           |
 
 Expected battery life:
 
 | Usage pattern               | Battery life      |
 |-----------------------------|-------------------|
-| Never pressed (shelf)       | ~5–6 years        |
+| Never pressed (shelf)       | ~7 years          |
 | ~5 presses/day              | ~2 years          |
-| ~30 presses/day (bar duty)  | ~7 months         |
-| Theoretical max presses     | ~8,000            |
+| ~30 presses/day (bar duty)  | ~5 months         |
+| Theoretical max shows       | ~4,500            |
 
-Rule of thumb: standby costs ~100 µAh/day and each press costs about a quarter-day of standby, so
-below ~4 presses/day the sleep current dominates; above it, presses dominate.
+The punchline: v0.3 runs on a cell with a third of the v0.2 battery's capacity and
+still matches its life, because presses are now free (each v0.2 press dead-shorted the
+battery and cost as much as a show) and sleep current dropped ~4×.
 
 ## Demo
 

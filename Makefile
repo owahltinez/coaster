@@ -2,7 +2,7 @@
 # same verbs (build / test / clean); this forwards to both from the repo root.
 # Domain-specific verbs forward to the one subdir that has them.
 
-.PHONY: build test clean flash fuses reset review
+.PHONY: build test clean flash fuses review
 
 build:
 	$(MAKE) -C firmware build
@@ -19,8 +19,8 @@ clean:
 	$(MAKE) -C pcb clean
 	$(MAKE) -C enclosure clean
 
-# firmware only: program the chip, set fuses, recover a wedged programmer
-flash fuses reset:
+# firmware only: program the chip, set fuses
+flash fuses:
 	$(MAKE) -C firmware $@
 
 # pcb only: render / 1:1 PDF / STEP
