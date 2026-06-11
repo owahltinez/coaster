@@ -71,11 +71,33 @@ JLCPCB — the only hand-assembly per unit is dropping a CR2016 into the holder.
 with **white soldermask** (the board face is the reflector behind the LEDs; see the
 ordering plan in [pcb/DESIGN.md](pcb/DESIGN.md)).
 
-Rough estimates as of June 2026, assembled and shipped: **~A$3.30/board at qty 30,
-~A$2.70 at qty 100** (~US$2.15/$1.75). A finished coaster — board, name-brand CR2016,
-and ~29g of printed shell — lands around **A$5.25 at qty 30**. Prices drift; get a real
-quote from the [JLCPCB quote tool](https://jlcpcb.com/quote) and confirm ATtiny202
-stock at order time (the ATtiny402 is a firmware-compatible drop-in substitute).
+Rough per-unit estimates as of June 2026 (USD, assembled and shipped; ~A$1.55/US$):
+
+| Per unit               | Qty 30  | Qty 100 | Qty 1k  | Qty 10k |
+|------------------------|---------|---------|---------|---------|
+| Parts                  | $0.74   | $0.70   | ~$0.60  | ~$0.47  |
+| Feeder/setup/stencil   | $0.72   | $0.30   | ~$0.04  | ~$0     |
+| PCB + assembly         | $0.47   | $0.40   | ~$0.30  | ~$0.20  |
+| Board shipping         | $0.20   | $0.35   | ~$0.10  | ~$0.05  |
+| CR2016 (name-brand)    | $0.65   | $0.35   | ~$0.20  | ~$0.12  |
+| Enclosure              | $0.60 (FDM) | $0.60 (FDM) | ~$1.00 (print farm)\* | ~$0.30 (molded)\* |
+| **Finished coaster**   | **~$3.40** | **~$2.70** | **~$2.25** | **~$1.10** |
+
+\*The 1k column keeps FDM but prices it honestly: ~2,500 printer-hours, which a small
+farm of four budget printers clears in under a month — filament plus printer
+amortization lands near $1/unit, with no tooling commitment and the printers kept at
+the end. The 10k column switches to injection molding (aluminum tooling, amortized);
+that is also the column where a further redesign pays — shrinking the PCB from the
+structural 50×50mm to a ~25mm puck and letting the molded shell carry the mechanical
+roles would cut the PCB line by ~$0.10 more. If 1k is a milestone toward 10k rather
+than the destination, rapid aluminum tooling (~$1–1.5k) prices similarly at 1k and
+carries forward.
+
+The electronics architecture is the same in every column — the MCU ($0.30–0.43) is the
+cheapest line that matters, and it is the entire personality of the product. Prices
+drift; get a real quote from the [JLCPCB quote tool](https://jlcpcb.com/quote) and
+confirm ATtiny202 stock at order time (the ATtiny402 is a firmware-compatible drop-in
+substitute).
 
 ## Software
 
