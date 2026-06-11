@@ -198,7 +198,7 @@ def build_board():
     silk("VCC", 39.46, 9.7, 0.8, angle=90)
     silk("GND", 36.92, 9.7, 0.8, angle=90)
     silk("WAHLTINEZ BAR\nCOASTER v0.3", 25.0, 4.7, 1.2)
-    silk("U1 ATTINY402   Q1 LED DRIVER", 40.4, 29, 0.8, angle=90)
+    silk("U1 ATTINY202   Q1 LED DRIVER", 40.4, 29, 0.8, angle=90)
     silk("PROG: UPDI 3-PIN, BATTERY OUT", 42.2, 29, 0.8, angle=90)
     silk("github.com/owahltinez/coaster", 44.0, 29, 0.8, angle=90)
 

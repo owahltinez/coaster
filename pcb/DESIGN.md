@@ -8,8 +8,10 @@ debugging it.
 
 ## Design rationale
 
-- **MCU: ATtiny402** — in production, real brown-out detector, UPDI single-wire
-  programming, 4KB flash / 256B SRAM headroom.
+- **MCU: ATtiny202** — in production, real brown-out detector, UPDI single-wire
+  programming, ~1µA power-down sleep. 2KB flash / 128B SRAM is 7× the current
+  firmware; the ATtiny402 (4KB/256B) is a drop-in substitute at +$0.22 if the
+  firmware ever outgrows it — a binary built for the 202 runs unmodified on a 402.
 - **Button on a GPIO with pin-interrupt wake** — presses cost ~0 µAh and richer UX
   (double-tap, long-press) becomes possible. v0.2 woke by dead-shorting the battery,
   which cost ~11 µAh per press and destroyed SRAM state.
@@ -20,7 +22,7 @@ debugging it.
 - **3-pad UPDI header** — programming cannot collide with the LEDs by construction
   (v0.2's ISP shared the LED pin, which made flashing finicky).
 
-## MCU pin map (ATtiny402, SOIC-8)
+## MCU pin map (ATtiny202, SOIC-8)
 
 | Pin | Port | Net      | Function |
 |-----|------|----------|----------|
@@ -58,7 +60,7 @@ Notes:
 
 | Ref | Part | Package | LCSC # | Tier | ~Unit USD |
 |-----|------|---------|--------|------|-----------|
-| U1 | ATtiny402-SSN | SOIC-8 | C2053235 (-SSFR) | Extended | 0.65 |
+| U1 | ATtiny202-SSN | SOIC-8 | C2052951 (-SSNR) | Extended | 0.43 |
 | Q1 | AO3400A N-MOSFET | SOT-23 | C20917 | Basic | 0.01 |
 | L1–L4 | White LED XL-1608UWC-04 | 0603 | C965808 | Extended | 0.01 |
 | R1–R4 | 150Ω | 0603 | any basic | Basic | 0.001 |
@@ -69,7 +71,7 @@ Notes:
 | SW1 | Tactile switch TS-1187A-B-A-B | SMD | C318884 | Extended | 0.02 |
 | BT1 | CR2016 holder MY-2016-02 | SMD | C2979176 | Extended | 0.16 |
 
-Per-board parts ≈ $0.96 USD. Extended parts (U1, L1–L4, SW1, BT1) cost a $3 feeder fee
+Per-board parts ≈ $0.74 USD. Extended parts (U1, L1–L4, SW1, BT1) cost a $3 feeder fee
 each per order — $0.40/board at qty 30. Option: leave BT1 off the assembly and
 hand-solder it (two large pads) to save its fee.
 
@@ -97,10 +99,11 @@ Part choices worth defending:
 Estimated ~$100–105 AUD shipped (economy mail). Order with **white soldermask** (same
 price): the board face sits under the clear shield and is the reflector behind the
 LEDs — dark mask absorbs a large fraction of the show's light for free. Confirm
-ATtiny402 stock/tier in the JLCPCB parts library at order time; if out of stock, order
-assembly without U1 and hand-solder the SOIC-8s.
+ATtiny202 stock/tier in the JLCPCB parts library at order time; if out of stock, the
+ATtiny402 is a drop-in substitute (same firmware binary), or order assembly without U1
+and hand-solder the SOIC-8s.
 
-## Firmware port checklist (ATtiny13A → ATtiny402)
+## Firmware port checklist (ATtiny13A → ATtiny202)
 
 - [ ] PWM: TCA0 in single-slope PWM, WO0 on PA3 (default PORTMUX routing)
 - [ ] Button: PA6 input, internal pull-up (PORTA.PIN6CTRL), falling-edge interrupt, wake from power-down

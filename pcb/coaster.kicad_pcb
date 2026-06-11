@@ -1361,7 +1361,7 @@
 				)
 			)
 		)
-		(property "Value" "ATtiny402-SSN"
+		(property "Value" "ATtiny202-SSN"
 			(at 0 3.4 270)
 			(layer "F.Fab")
 			(uuid "8f738fd4-ef0b-4450-b01e-76c48ece0444")
@@ -3760,7 +3760,7 @@
 			)
 		)
 	)
-	(gr_text "U1 ATTINY402   Q1 LED DRIVER"
+	(gr_text "U1 ATTINY202   Q1 LED DRIVER"
 		(at 40.4 29 90)
 		(layer "F.SilkS")
 		(uuid "fac398f4-b2f7-4c41-9cf3-ba3883b69a99")

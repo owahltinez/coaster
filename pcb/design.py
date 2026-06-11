@@ -17,7 +17,7 @@ Part = namedtuple("Part", "footprint value")
 # Footprints prefixed "coaster:" come from the local coaster.pretty library (pad
 # geometry extracted from the v0.2 board); the rest are KiCad's own libraries.
 PARTS = {
-    "U1":  Part("Package_SO:SOIC-8_3.9x4.9mm_P1.27mm", "ATtiny402-SSN"),
+    "U1":  Part("Package_SO:SOIC-8_3.9x4.9mm_P1.27mm", "ATtiny202-SSN"),
     "Q1":  Part("Package_TO_SOT_SMD:SOT-23", "AO3400A"),
     "BT1": Part("coaster:MY-2016-02", "CR2016"),
     "SW1": Part("coaster:TS-1187A", "TS-1187A-B-A-B"),
