@@ -73,7 +73,17 @@ ATTINY10, which are in active production.
 To build the code, you need to first install `avrdude`, `avr-libc` and `avr-gcc`. Then, you can run:
 
 ```bash
-make -C firmware build   # or `make build` from the repo root to build firmware + board
+make -C firmware build   # or `make build` from the repo root to build firmware + board + enclosure
+```
+
+The board build needs KiCad (`kicad-cli` and the `pcbnew` python bindings) and the enclosure
+build needs FreeCAD (`freecadcmd`). On Linux both land on PATH; macOS app bundles don't expose
+their CLIs, so symlink them once:
+
+```bash
+ln -s /Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli /opt/homebrew/bin/kicad-cli
+ln -s /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3 /opt/homebrew/bin/kicad-python
+ln -s /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd /opt/homebrew/bin/freecadcmd
 ```
 
 ### Flashing

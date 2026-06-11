@@ -1,8 +1,13 @@
 # v0.3 hardware. design.py is the circuit (the source of truth); generate.py
 # turns it into the committed coaster.kicad_pcb file.
 
+# generate.py needs the pcbnew python bindings: on Linux the system python3
+# has them; on macOS `kicad-python` is a symlink to KiCad's bundled
+# interpreter (see the README's tooling notes).
+PYTHON?=$(shell command -v kicad-python 2>/dev/null || echo python3)
+
 build:
-	python3 generate.py
+	${PYTHON} generate.py
 
 # Board "test": DRC (clearances, shorts, unconnected copper). Connectivity
 # against design.py is validated inside generate.py during build.

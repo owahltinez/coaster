@@ -12,6 +12,7 @@ Zone filling runs as a child process (filling in the same process that built the
 board segfaults in this pcbnew binding), so generate.py re-execs itself with
 "fill" at the end.
 """
+import os
 import sys
 import subprocess
 
@@ -20,7 +21,12 @@ from pcbnew import VECTOR2I, FromMM
 
 import design
 
-SYS_FP = "/usr/share/kicad/footprints"
+# KiCad's stock footprint libraries: Linux package path or the macOS bundle.
+SYS_FP_CANDIDATES = [
+    "/usr/share/kicad/footprints",
+    "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints",
+]
+SYS_FP = next((p for p in SYS_FP_CANDIDATES if os.path.isdir(p)), SYS_FP_CANDIDATES[0])
 
 # Fixed seed for KiCad's UUID generator. Every board item (footprints, pads,
 # tracks, vias, zones, text) gets a fresh UUID at construction, and KiCad
