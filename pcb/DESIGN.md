@@ -1,18 +1,24 @@
 # Coaster v0.3 — Design Specification
 
-Goals: eliminate the v0.2 design shortcuts that the firmware currently compensates for
-(see "Known quirks" in the README), modernize the MCU, and make programming painless.
-Every change below maps to a lesson learned debugging v0.2.
+The circuit itself lives in `design.py` (the single source of truth); this document
+records the design intent: how the MCU is wired, why each part is what it is, and what
+to verify before committing to a batch. The previous revision (v0.2: ATtiny13A,
+EasyEDA) is archived at release v0.2.1; every choice below traces to a lesson learned
+debugging it.
 
-## Summary of changes from v0.2
+## Design rationale
 
-| # | Change | Replaces | Why |
-|---|--------|----------|-----|
-| 1 | MCU: ATtiny402-SSN (SOIC-8) | ATtiny13A-SSUR | In production, $0.65, real BOD, UPDI single-wire programming, 4KB flash / 256B SRAM headroom |
-| 2 | Button on GPIO (PA6) to GND, wake via pin interrupt | Button dead-shorting the battery | Presses cost ~0 µAh instead of ~11; no more SRAM-destroying wake; richer UX (double-tap, long-press) |
-| 3 | One series resistor per LED + low-side MOSFET driver | 4 LEDs straight on a pin through 0.1Ω | Predictable LED current, no pin-current limit, battery sag bounded by design instead of luck |
-| 4 | 100nF decoupling + bulk capacitor | No capacitors at all | Transient immunity; rides through battery-holder micro-dropouts |
-| 5 | 1×3 UPDI programming header | 6-pin ISP + hand-held cable | Three pads: UPDI/VDD/GND. No MOSI/MISO/SCK conflicts possible; LEDs can't interfere with programming by construction |
+- **MCU: ATtiny402** — in production, real brown-out detector, UPDI single-wire
+  programming, 4KB flash / 256B SRAM headroom.
+- **Button on a GPIO with pin-interrupt wake** — presses cost ~0 µAh and richer UX
+  (double-tap, long-press) becomes possible. v0.2 woke by dead-shorting the battery,
+  which cost ~11 µAh per press and destroyed SRAM state.
+- **One series resistor per LED + low-side MOSFET driver** — LED current set by
+  design, not by battery internal resistance and pin-driver luck.
+- **Real decoupling (C1) and bulk (C2) capacitance** — transient immunity; rides
+  through battery-holder micro-dropouts.
+- **3-pad UPDI header** — programming cannot collide with the LEDs by construction
+  (v0.2's ISP shared the LED pin, which made flashing finicky).
 
 ## MCU pin map (ATtiny402, SOIC-8)
 
@@ -40,16 +46,13 @@ UPDI:     U1-6 (PA0), J1-1
 ```
 
 Notes:
-- Q1 must be a logic-level FET (AO3400A: Vgs(th) 0.65-1.45V, fully enhanced at 2.5V).
-  A 2N7002 (Vgs(th) up to 2.5V worst-case) would be driven barely above threshold for
-  most of the cell's life and could read as dim/flickering LEDs on a worn battery.
+
 - R5 (gate pulldown) keeps the LEDs off while PA3 floats during programming/reset.
-- Decoupling C1 (100nF X7R) must sit physically adjacent to U1 pins 1/8.
-- C2 (bulk, ≥22µF MLCC) anywhere near the battery holder.
+- C1 must sit physically adjacent to U1 pins 1/8; C2 anywhere near the battery holder.
 - 150Ω per LED ≈ 2–4mA per LED across the battery's life (3.2V fresh → 2.8V worn);
   total LED load ~8–16mA. Through the MOSFET, the MCU pin only drives gate charge.
-- J1: 1×3 pads, 2.54mm pitch, near the board edge: [UPDI | VDD | GND]. Through-hole
-  pads preferred (a header can be pressed in at an angle or soldered for batch work).
+- J1: 1×3 through-hole pads, 2.54mm pitch, near the board edge: [UPDI | VDD | GND].
+  Through-hole so a header can be pressed in at an angle or soldered for batch work.
 
 ## BOM (with JLCPCB catalog tier)
 
@@ -66,35 +69,36 @@ Notes:
 | SW1 | Tactile switch TS-1187A-B-A-B | SMD | C318884 | Extended | 0.02 |
 | BT1 | CR2016 holder MY-2016-02 | SMD | C2979176 | Extended | 0.16 |
 
-Per-board parts ≈ $0.96 USD. Extended parts: U1 + BT1 + SW1 + L1–L4 → $3 feeder fee
-each per order. Option: leave BT1 off the assembly and hand-solder it (two large pads)
-to save the fee.
+Per-board parts ≈ $0.96 USD. Extended parts (U1, L1–L4, SW1, BT1) cost a $3 feeder fee
+each per order — $0.40/board at qty 30. Option: leave BT1 off the assembly and
+hand-solder it (two large pads) to save its fee.
 
-L1–L4 are the XL-1608UWC-04 rather than the basic-catalog KT-0603W: same 0603
-footprint, same 120° angle, coin-cell-friendly Vf, but 400 min / 630 typ mcd @ 20mA
-versus the KENTO's 173–207 — about 3x the light for the same current, which matters
-more than anywhere else in the BOM since the entire point of the device is this glow.
-The $3 feeder fee is $0.10/board at qty 30.
+Part choices worth defending:
 
-SW1 stays the TS-1187A despite the feeder fee: the enclosure flexure is dimensioned
-around this switch's body height and actuation force (and the v0.2.1 enclosure shipped
-against it), and its footprint is the one extracted from the manufactured v0.2 board.
-A basic-catalog switch would save ~$0.10/board at qty 30 and risk re-validating the
-press feel.
-
-BT1 is a CR2016, not CR2032: same Ø20mm cell, but the MY-2016-02 holder is 2.2mm tall vs the
-MY-2032-12's 3.6mm, slimming the enclosure (the holder was the tallest component). ~75mAh still
-gives 2+ years at a few presses a day — µA sleep dominates and presses are now ~free.
+- **Q1 must be a logic-level FET.** The AO3400A (Vgs(th) 0.65–1.45V) is fully enhanced
+  at worn-cell voltage; a 2N7002 (Vgs(th) up to 2.5V worst-case) would be driven barely
+  above threshold for most of the cell's life and read as dim/flickering LEDs.
+- **L1–L4 buy brightness, not cost.** The XL-1608UWC-04 delivers 400 min / 630 typ mcd
+  @ 20mA versus the basic-catalog KT-0603W's 173–207 — about 3× the light at the same
+  current, in the same footprint, with coin-cell-friendly Vf. The glow is the entire
+  point of the device, so this is the one place the feeder fee is clearly worth it.
+- **SW1 is mechanically load-bearing.** The enclosure flexure is dimensioned around
+  this switch's body height and actuation force, and its footprint is the one extracted
+  from the manufactured v0.2 board. A basic-catalog switch would save $0.10/board and
+  risk re-validating the press feel.
+- **BT1 takes a CR2016, not a CR2032.** Same Ø20mm cell, but the MY-2016-02 holder is
+  2.2mm tall versus 3.6mm, slimming the enclosure (the holder was the tallest
+  component). ~75mAh still gives 2+ years at a few presses a day — µA sleep dominates
+  and presses are now ~free.
 
 ## Ordering plan
 
 30 boards, JLCPCB Economic assembly (30 is the Economic cap — the per-unit sweet spot).
-Order with **white soldermask** (same price): the board surface sits under the clear
-shield and acts as the reflector behind the LEDs — dark mask absorbs a large fraction
-of the show's light for free.
-Estimated ~$100–105 AUD shipped (economy mail). Confirm ATtiny402 stock/tier in the
-JLCPCB parts library at order time; if out of stock, order assembly without U1 and
-hand-solder the SOIC-8s.
+Estimated ~$100–105 AUD shipped (economy mail). Order with **white soldermask** (same
+price): the board face sits under the clear shield and is the reflector behind the
+LEDs — dark mask absorbs a large fraction of the show's light for free. Confirm
+ATtiny402 stock/tier in the JLCPCB parts library at order time; if out of stock, order
+assembly without U1 and hand-solder the SOIC-8s.
 
 ## Firmware port checklist (ATtiny13A → ATtiny402)
 
@@ -114,11 +118,10 @@ hand-solder the SOIC-8s.
 - [ ] Programming via UPDI header works
 - [ ] Sleep current measured < 5µA
 - [ ] Show plays on button press; press costs no measurable charge
-- [ ] Brightness check through an actual glass: 150R per LED is a starting value, not a
-      decision -- v0.2 brightness was set by battery sag, v0.3's is set by R1-R4. If too
-      dim, rework toward 100R and re-measure the worn-battery behavior
+- [ ] Brightness through an actual glass: 150Ω is a starting value, not a decision —
+      if too dim, rework toward 100Ω and re-measure worn-battery behavior
 - [ ] Worn-battery test: show degrades gracefully (dims) with no reset loop
 - [ ] Bench-supply + series-resistor test (30–50Ω) simulating a dying cell
 - [ ] Press during show, long-press, rapid double-press behave sanely
-- [ ] Splash test: assembled unit, dribble water over the flexure -- the shield sheds it,
-      nothing reaches the PCB, battery contact stays dry, button still clicks
+- [ ] Splash test: assembled unit, dribble water over the flexure — the shield sheds
+      it, nothing reaches the PCB, battery contact stays dry, button still clicks
