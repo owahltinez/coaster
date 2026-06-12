@@ -21,7 +21,14 @@ review: build
 	kicad-cli pcb export pdf coaster.kicad_pcb -o coaster-1to1.pdf --layers F.Cu,F.SilkS,Edge.Cuts,F.Mask
 	kicad-cli pcb export step coaster.kicad_pcb -o coaster.step --subst-models
 
+# JLCPCB order bundle: the three uploads (Gerbers zip + BOM + CPL) into dist/,
+# generated from the board geometry and design.py's part data. Builds first so
+# the board matches design.py. fab.py prints the pre-payment checklist.
+fab: build
+	${PYTHON} fab.py
+
 clean:
 	rm -f coaster-*.rpt coaster-1to1.pdf coaster.step
+	rm -rf dist
 
-.PHONY: build test review clean
+.PHONY: build test review fab clean

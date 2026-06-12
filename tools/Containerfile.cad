@@ -1,0 +1,27 @@
+# Pinned enclosure toolchain: FreeCAD 1.1.1 headless (freecadcmd) + make. The
+# source (enclosure/coaster.FCStd) is authored in FreeCAD 1.1 — Debian's stable
+# 1.0.0 downgrades the sketch/Origin attachment and fails validation, so we pin
+# the matching 1.1.1 release AppImage for reproducible STL/STEP geometry. The
+# AppImage is extracted (no FUSE/--privileged needed) and freecadcmd runs from
+# the extracted tree with no extra runtime libs. Base pinned by digest (tag:
+# docker.io/library/debian:trixie-slim):
+#   sha256:1275c5673a6135ff07b289ddafe4e2270dceb08eda14c0c69bb1b93ee25a9416
+#
+# Build:  make image-cad    (top-level Makefile routes enclosure build/test through it)
+FROM docker.io/library/debian@sha256:1275c5673a6135ff07b289ddafe4e2270dceb08eda14c0c69bb1b93ee25a9416
+
+# FreeCAD 1.1.1 release AppImage, pinned by sha256 (from the GitHub release API).
+ARG FREECAD_URL=https://github.com/FreeCAD/FreeCAD/releases/download/1.1.1/FreeCAD_1.1.1-Linux-x86_64-py311.AppImage
+ARG FREECAD_SHA256=e2006138400b2fa85fa2e160e872d00767eb32964e85075830f7e198a3a876e1
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates curl make \
+ && curl -fsSL "$FREECAD_URL" -o /tmp/freecad.AppImage \
+ && echo "$FREECAD_SHA256  /tmp/freecad.AppImage" | sha256sum -c - \
+ && chmod +x /tmp/freecad.AppImage \
+ && cd /opt && /tmp/freecad.AppImage --appimage-extract >/dev/null \
+ && printf '#!/bin/sh\nexec /opt/squashfs-root/usr/bin/freecadcmd "$@"\n' > /usr/local/bin/freecadcmd \
+ && chmod +x /usr/local/bin/freecadcmd \
+ && rm -f /tmp/freecad.AppImage \
+ && apt-get purge -y curl && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+WORKDIR /work

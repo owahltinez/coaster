@@ -13,12 +13,15 @@ sleeps at ~1 µA — there is no on/off switch and none is needed.
 - `firmware/` — AVR C firmware and its build/flash Makefile.
 - `pcb/` — v0.3 board design (KiCad, generated from python scripts) and footprints.
 - `enclosure/` — 3D-printed shell (FreeCAD source + STEP/STL export).
+- `tools/` — pinned toolchain containers (KiCad for the board, avr-gcc for the firmware).
 
 All subdirectories share the same verbs, and the top-level Makefile forwards to each:
 `make build` (firmware hex + board + enclosure exports), `make test` (flash-fit check +
 board DRC + enclosure solidity check), `make clean`. Domain-specific verbs forward to the
 relevant subdirectory: `make flash` / `make fuses` (firmware programming),
-`make review` (board render / PDF / STEP).
+`make review` (board render / PDF / STEP), `make fab` (JLCPCB order bundle). The
+firmware and PCB verbs run inside pinned containers — `make image` builds them once
+(see Software); flashing stays on the host.
 
 ## How it works
 
@@ -67,9 +70,11 @@ firmware, schematic renderings, and 3D printing assets.
 ### Production
 
 All SMD parts are LCSC-stocked, so the board can be fabricated and assembled through
-JLCPCB — the only hand-assembly per unit is dropping a CR2016 into the holder. Order
-with **white soldermask** (the board face is the reflector behind the LEDs; see the
-ordering plan in [pcb/DESIGN.md](pcb/DESIGN.md)).
+JLCPCB — the only hand-assembly per unit is dropping a CR2016 into the holder. `make
+fab` writes the three JLCPCB uploads (Gerbers zip + BOM + CPL) to `pcb/dist/`; order
+with **white soldermask** (the board face is the reflector behind the LEDs). The full
+step-by-step — orientation checks, stock confirmation, post-assembly flashing — is the
+ordering plan in [pcb/DESIGN.md](pcb/DESIGN.md).
 
 Rough per-unit estimates as of June 2026 (USD, assembled and shipped; ~A$1.55/US$):
 
@@ -101,21 +106,35 @@ substitute).
 
 ## Software
 
-To build the firmware you need `avr-gcc` (≥ 12, for ATtiny202 support; `avr-gcc@14`
-from the [osx-cross/avr](https://github.com/osx-cross/homebrew-avr) tap works) and
-`avrdude` (≥ 7, for `serialupdi`). Then:
+The firmware and board builds run in **pinned containers** (`tools/`), so the host
+needs neither a KiCad nor an AVR toolchain — only a container engine. Pinning is what
+keeps the artifacts reproducible: the committed board is KiCad-10 format and host KiCad
+drifts (Debian ships v9, which can't even open a v10 board), and the ATtiny202 firmware
+needs avr-gcc ≥ 12 (the README used to hand-source `avr-gcc@14` from the
+[osx-cross/avr](https://github.com/osx-cross/homebrew-avr) tap on macOS). Build the
+images once, then the verbs route through them automatically:
 
 ```bash
-make -C firmware build   # or `make build` from the repo root to build everything
+make image               # build both images: coaster-fw + coaster-pcb (re-run after editing a Containerfile)
+make build               # firmware hex + board + enclosure, each in its toolchain
+make fab                 # regenerate the board + emit the JLCPCB bundle, in the container
 ```
 
-The board build needs KiCad (`kicad-cli` and the `pcbnew` python bindings) and the
-enclosure build needs FreeCAD (`freecadcmd`). On Linux both land on PATH; macOS app
-bundles don't expose their CLIs, so symlink them once:
+The enclosure builds the same way, in a pinned FreeCAD 1.1.1 container (`make image`
+builds it too) — so the host needs no FreeCAD either, and the old macOS `freecadcmd`
+symlink dance is gone.
+
+`docker` here is a [Podman](https://podman.io) alias (`podman-docker`); override
+`CONTAINER_ENGINE` to use another runtime. Rootless Podman maps container-root to your
+UID (the Makefile passes `--user 0`), so generated files come back owned by you. The
+rule is **produce artifacts in a container, touch hardware on the host** — so flashing
+(`make flash` / `make fuses`, which need a USB-serial adapter) stays on the host and
+needs `avrdude` (≥ 7, for `serialupdi`) installed there; see Flashing below.
+
+The **enclosure** build still runs on the host via FreeCAD (`freecadcmd`); on macOS the
+app bundle doesn't expose its CLI, so symlink it once:
 
 ```bash
-ln -s /Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli /opt/homebrew/bin/kicad-cli
-ln -s /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3 /opt/homebrew/bin/kicad-python
 ln -s /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd /opt/homebrew/bin/freecadcmd
 ```
 

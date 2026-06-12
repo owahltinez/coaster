@@ -85,3 +85,44 @@ PLACEMENT = {
     "BT1": (13, 37.8, 0),
     "H1": (3, 3, 0), "H2": (3, 47, 0), "H3": (47, 3, 0), "H4": (47, 47, 0),
 }
+
+# ---------------------------------------------------------------------------
+# Assembly / ordering data (consumed by fab.py to emit the JLCPCB bundle).
+#
+# JLCPCB takes three uploads — Gerbers, BOM, CPL — and the BOM needs one LCSC
+# part number per placed component. These live here, with the rest of the
+# circuit-as-data, so the bundle is generated, never hand-maintained.
+
+# LCSC part number per reference. The five parts defended in DESIGN.md (U1, Q1,
+# L*, SW1, BT1) are deliberate choices; the passives are "any basic" jellybeans
+# pinned to in-stock JLCPCB *Basic* parts (no per-part feeder fee). Confirm
+# stock at order time — same caveat as U1; if a Basic SKU lapses, any same
+# value/package/tolerance Basic part is an equivalent substitute.
+LCSC = {
+    "U1":  "C2052951",  # ATtiny202-SSN, SOIC-8 (Extended — confirm stock; ATtiny402 = drop-in)
+    "Q1":  "C20917",    # AO3400A logic-level N-MOSFET, SOT-23 (Basic)
+    "L1":  "C965808", "L2": "C965808", "L3": "C965808", "L4": "C965808",  # XL-1608UWC-04 (Extended)
+    "SW1": "C318884",   # TS-1187A-B-A-B tactile switch (Extended)
+    "BT1": "C2979176",  # MY-2016-02 CR2016 holder (Extended)
+    "R1":  "C22808", "R2": "C22808", "R3": "C22808", "R4": "C22808",  # 150R 0603 1% (Basic)
+    "R5":  "C25803",    # 100k 0603 1% (Basic)
+    "C1":  "C14663",    # 100nF 0603 X7R 50V (Basic)
+    "C2":  "C45783",    # 22uF 0805 25V X5R (Basic)
+    "C3":  "C14663",    # 100nF 0603 X7R 50V (Basic — debounce, optional)
+}
+
+# Present on the board but NOT placed by JLCPCB SMT assembly: the UPDI header
+# (through-hole, pressed/soldered by hand for batch work) and the mounting
+# holes. fab.py omits these from both the BOM and the CPL.
+ASSEMBLY_EXCLUDE = {"J1", "H1", "H2", "H3", "H4"}
+
+# Degrees ADDED to the KiCad CPL angle to match JLCPCB's orientation
+# convention (JLCPCB's reel-0° differs from KiCad's for some packages). This is
+# empty on the first v0.3 order by design: no orientation has been verified on
+# a real assembly preview yet. Record any correction HERE, keyed by footprint,
+# once confirmed on the preview — then the next order is right by construction.
+# The orientation that bites first: BT1's insertion mouth must face the WEST
+# board edge (cell slides in/out over bare board); check it before paying.
+ROTATION_CORRECTION = {
+    # "Package_TO_SOT_SMD:SOT-23": 180,   # example only — verify before trusting
+}

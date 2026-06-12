@@ -1,0 +1,20 @@
+# Pinned PCB toolchain image. The committed board is KiCad-10 format; host KiCad
+# drifts (Debian ships v9, which cannot even open a v10 board), so pinning the
+# KiCad version is what makes `make build` / `make fab` reproducible here and in
+# CI. Built on the official KiCad image, which keeps its libraries at the
+# standard /usr/share/kicad paths — so pcb/generate.py runs unmodified.
+#
+# Base pinned by digest for reproducibility (tag: docker.io/kicad/kicad:10.0.2):
+#   sha256:165c81785b2df23a09892f4cc53bc0095a83b469bfbbe07989670d64049677a7
+# The only thing the base lacks is `make`, so the repo's pcb/Makefile can run
+# verbatim inside the container. pcbnew (in system python3), kicad-cli, and the
+# footprint libraries are already present.
+#
+# Build:  make image       (top-level Makefile routes the PCB verbs through it)
+FROM docker.io/kicad/kicad@sha256:165c81785b2df23a09892f4cc53bc0095a83b469bfbbe07989670d64049677a7
+
+USER root
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends make \
+ && rm -rf /var/lib/apt/lists/*
+WORKDIR /work

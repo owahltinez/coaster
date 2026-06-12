@@ -1,0 +1,20 @@
+# Pinned firmware toolchain: avr-gcc 14 + avr-libc + binutils-avr + make. The
+# ATtiny202 needs avr-gcc >= 12, and the README documents the cross-platform
+# pain this removes (macOS hand-sources avr-gcc@14 from a homebrew tap); pinning
+# it makes the firmware binary reproducible on any machine and in CI.
+#
+# Debian trixie ships gcc-avr 14.2.0, matching the version DESIGN.md builds
+# against. Base pinned by digest (tag: docker.io/library/debian:trixie-slim):
+#   sha256:1275c5673a6135ff07b289ddafe4e2270dceb08eda14c0c69bb1b93ee25a9416
+#
+# Flashing is NOT here: `make flash` / `make fuses` need the USB-serial adapter
+# and the host udev rule, so they stay on the host and avrdude is left out.
+#
+# Build:  make image-fw    (top-level Makefile routes firmware build/test through it)
+FROM docker.io/library/debian@sha256:1275c5673a6135ff07b289ddafe4e2270dceb08eda14c0c69bb1b93ee25a9416
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      gcc-avr avr-libc binutils-avr make \
+ && rm -rf /var/lib/apt/lists/*
+WORKDIR /work

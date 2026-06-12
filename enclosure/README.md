@@ -15,8 +15,11 @@ each exported as its own print/CAD artifact:
 
 ## Building
 
-Requires FreeCAD (the Makefile finds `freecadcmd` on PATH or in the macOS app
-bundle). Same verbs as the other subdirectories:
+The build runs in a pinned FreeCAD 1.1.1 container (`tools/Containerfile.cad`), so the
+host needs no FreeCAD — `make image` (from the repo root) builds it once. The source is
+authored in FreeCAD 1.1; stable 1.0.0 breaks the sketch/Origin attachment, so the
+version is pinned to match. Same verbs as the other subdirectories (run from the repo
+root so they route through the container, or `make -C enclosure …` inside it):
 
 ```bash
 make build   # validate + export coaster-{top,bottom,shield}.{step,stl}

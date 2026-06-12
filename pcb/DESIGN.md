@@ -63,15 +63,19 @@ Notes:
 | U1 | ATtiny202-SSN | SOIC-8 | C2052951 (-SSNR) | Extended | 0.43 |
 | Q1 | AO3400A N-MOSFET | SOT-23 | C20917 | Basic | 0.01 |
 | L1–L4 | White LED XL-1608UWC-04 | 0603 | C965808 | Extended | 0.01 |
-| R1–R4 | 150Ω | 0603 | any basic | Basic | 0.001 |
-| R5 | 100kΩ | 0603 | any basic | Basic | 0.001 |
-| C1 | 100nF X7R | 0603 | any basic | Basic | 0.001 |
-| C2 | 22µF MLCC | 0805 | any basic | Basic | 0.01 |
-| C3 | 100nF (debounce, optional) | 0603 | any basic | Basic | 0.001 |
+| R1–R4 | 150Ω 1% | 0603 | C22808 | Basic | 0.001 |
+| R5 | 100kΩ 1% | 0603 | C25803 | Basic | 0.001 |
+| C1 | 100nF X7R 50V | 0603 | C14663 | Basic | 0.001 |
+| C2 | 22µF X5R 25V | 0805 | C45783 | Basic | 0.01 |
+| C3 | 100nF (debounce, optional) | 0603 | C14663 | Basic | 0.001 |
 | SW1 | Tactile switch TS-1187A-B-A-B | SMD | C318884 | Extended | 0.02 |
 | BT1 | CR2016 holder MY-2016-02 | SMD | C2979176 | Extended | 0.16 |
 
-Per-board parts ≈ $0.74 USD. Extended parts (U1, L1–L4, SW1, BT1) cost a $3 feeder fee
+These LCSC numbers are the source of truth in `design.py`'s `LCSC` map, from
+which `make fab` emits the BOM — the table here is documentation. The five
+non-jellybean parts are deliberate (see below); the passives are pinned to
+in-stock JLCPCB *Basic* SKUs (no feeder fee), substitutable by any same
+value/package/tolerance Basic part if one lapses. Per-board parts ≈ $0.74 USD. Extended parts (U1, L1–L4, SW1, BT1) cost a $3 feeder fee
 each per order — $0.40/board at qty 30. Option: leave BT1 off the assembly and
 hand-solder it (two large pads) to save its fee.
 
@@ -96,14 +100,33 @@ Part choices worth defending:
 ## Ordering plan
 
 30 boards, JLCPCB Economic assembly (30 is the Economic cap — the per-unit sweet spot).
-Estimated ~$100–105 AUD shipped (economy mail). Order with **white soldermask** (same
-price): the board face sits under the clear shield and is the reflector behind the
-LEDs — dark mask absorbs a large fraction of the show's light for free. Confirm
-ATtiny202 stock/tier in the JLCPCB parts library at order time; if out of stock, the
-ATtiny402 is a drop-in substitute (same firmware binary), or order assembly without U1
-and hand-solder the SOIC-8s. BT1's pads are symmetric but the part is not: the
-insertion mouth must face the west board edge (cell slides in/out over bare board) —
-verify the holder's orientation on the assembly preview.
+Estimated ~$100–105 AUD shipped (economy mail).
+
+`make fab` generates the three JLCPCB uploads into `pcb/dist/` (gitignored) from the
+board geometry and `design.py`'s part data: `coaster-gerbers.zip` (Gerbers + drill),
+`coaster-bom.csv`, and `coaster-cpl.csv` (pick-and-place). The UPDI header (J1,
+through-hole) and the mounting holes are excluded from assembly — J1 is pressed/soldered
+by hand for batch flashing. Then at the JLCPCB quote tool:
+
+1. Upload `coaster-gerbers.zip`; set **white soldermask** (same price): the board face
+   sits under the clear shield and is the reflector behind the LEDs — dark mask absorbs a
+   large fraction of the show's light for free.
+2. Quantity 30, SMT assembly on the top side; upload `coaster-bom.csv` and
+   `coaster-cpl.csv`.
+3. Confirm **ATtiny202 (C2052951)** stock/tier at order time; if out of stock, the
+   ATtiny402 is a drop-in substitute (same firmware binary), or order assembly without U1
+   and hand-solder the SOIC-8s.
+4. On the assembly preview, **verify part orientations**. The KiCad and JLCPCB rotation
+   conventions differ for some packages, and `ROTATION_CORRECTION` in `design.py` is empty
+   until a real preview is checked. The one that bites: BT1's pads are symmetric but the
+   part is not — the insertion mouth must face the **west** board edge (cell slides in/out
+   over bare board). Record any rotation fix in `ROTATION_CORRECTION` (keyed by footprint)
+   and re-run `make fab`, so the next order is right by construction.
+
+Boards arrive **blank**: program each over the UPDI header (`make fuses` once to set the
+1.8V BOD, then `make flash`) and drop in a CR2016 — the cells are not part of the JLCPCB
+order. Validate one unit against the first-article checklist below before committing the
+batch to enclosures and cells.
 
 ## Firmware port checklist (ATtiny13A → ATtiny202)
 
