@@ -21,7 +21,7 @@ PCB_RUN          ?= $(DOCKER_RUN) $(KICAD_IMAGE)
 FW_RUN           ?= $(DOCKER_RUN) $(FW_IMAGE)
 CAD_RUN          ?= $(DOCKER_RUN) $(CAD_IMAGE)
 
-.PHONY: build test clean flash fuses review fab image image-pcb image-fw image-cad
+.PHONY: build test clean flash fuses review fab sim image image-pcb image-fw image-cad
 
 # Build the pinned toolchain images (run once, and after editing a Containerfile).
 image: image-pcb image-fw image-cad
@@ -54,3 +54,7 @@ flash fuses:
 # pcb only: render / 1:1 PDF / STEP, and the JLCPCB order bundle (in the container)
 review fab:
 	$(PCB_RUN) make -C pcb $@
+
+# enclosure only: press-mechanics simulation of the donut-piston Top (in the container)
+sim:
+	$(CAD_RUN) make -C enclosure sim

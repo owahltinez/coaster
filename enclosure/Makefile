@@ -9,8 +9,15 @@ build:
 test:
 	freecadcmd export.py --pass --check
 
+# Press-mechanics simulation of the donut-piston Top (sim/). Slices the real
+# solid, meshes the meridian section, and solves axisymmetric press loads in
+# CalculiX (gmsh + ccx ship inside the FreeCAD container). Writes sim/results.md.
+sim:
+	freecadcmd sim/run.py
+	@cat sim/results.md
+
 clean:
 	rm -f coaster-top.step coaster-top.stl coaster-bottom.step coaster-bottom.stl \
-	  coaster-shield.step coaster-shield.stl
+	  coaster-shield.step coaster-shield.stl sim/results.md sim/curve.svg
 
-.PHONY: build test clean
+.PHONY: build test sim clean
