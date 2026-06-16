@@ -26,7 +26,7 @@ import FreeCAD as App
 import Part
 
 # Design file the geometry is sliced from (relative to this module's directory).
-DESIGN_FILE = "../coaster-v0.2.2.FCStd"
+DESIGN_FILE = "../coaster.FCStd"
 
 # --- material (printed PETG; the absolute scale is calibrated out, see run.py) ---
 # The press model is linear, so modulus only sets an overall compliance scale,

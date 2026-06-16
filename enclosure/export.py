@@ -22,7 +22,6 @@ DOC = "coaster.FCStd"
 BODIES = {
     "Top": "coaster-top",
     "Bottom": "coaster-bottom",
-    "Shield": "coaster-shield",
 }
 
 # STL tessellation: 0.05mm max deviation is well below a 0.4mm FDM nozzle.

@@ -111,6 +111,6 @@ That's fine for "comfortable and won't self-trigger," not a precision number.
 
 ## Note on the design file
 
-This models `enclosure/coaster-v0.2.2.FCStd` (the donut-piston redesign). The
-canonical enclosure in this tree is still the v0.2 spiral (`coaster.FCStd`,
-built by `export.py`); the two coexist until the donut design is promoted.
+This models `enclosure/coaster.FCStd` — the donut-piston Top that `export.py`
+builds and the canonical enclosure for v0.3. (The v0.2 spiral flexure it
+replaced lives at tag v0.2.1.)

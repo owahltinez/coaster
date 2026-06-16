@@ -115,8 +115,8 @@ through-hole) and the mounting holes are excluded from assembly — J1 is presse
 by hand for batch flashing. Then at the JLCPCB quote tool:
 
 1. Upload `coaster-gerbers.zip`; set **white soldermask** (same price): the board face
-   sits under the clear shield and is the reflector behind the LEDs — dark mask absorbs a
-   large fraction of the show's light for free.
+   is the reflector behind the LEDs — dark mask absorbs a large fraction of the show's
+   light for free.
 2. Quantity 30, SMT assembly on the top side; upload `coaster-bom.csv` and
    `coaster-cpl.csv`.
 3. Confirm **ATtiny202 (C2052951)** stock/tier at order time; if out of stock, the
@@ -168,5 +168,5 @@ lives in the first-article checklist below.
 - [ ] Worn-battery test: show degrades gracefully (dims) with no reset loop
 - [ ] Bench-supply + series-resistor test (30–50Ω) simulating a dying cell
 - [ ] Press during show, long-press, rapid double-press behave sanely
-- [ ] Splash test: assembled unit, dribble water over the flexure — the shield sheds
-      it, nothing reaches the PCB, battery contact stays dry, button still clicks
+- [ ] Splash test: assembled unit, dribble water over the top — the solid piston lid
+      sheds it, nothing reaches the PCB, battery contact stays dry, button still clicks

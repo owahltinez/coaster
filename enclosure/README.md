@@ -1,17 +1,18 @@
 # Enclosure
 
-3D-printed shell for the coaster. The top face is a spiral flexure that holds
-the static weight of a glass but yields to a deliberate push, clicking the
-tactile button at the center of the PCB.
+3D-printed shell for the coaster. The top is a solid "donut-piston": a
+continuous disc that holds the static weight of a glass but deflects as a whole
+— piston-style, carried on a ring of snap arms — to click the tactile button at
+the center of the PCB. (The v0.2 lid was a spiral flexure; v0.3 replaced it with
+this solid piston.)
 
-`coaster.FCStd` (FreeCAD) is the CAD source of truth. It contains three bodies,
+`coaster.FCStd` (FreeCAD) is the CAD source of truth. It contains two bodies,
 each exported as its own print/CAD artifact:
 
-| Body   | Size (mm)        | What it is |
-|--------|------------------|------------|
-| Top    | Ø90 x 5.6        | Lid with the spiral flexure pressing the center button |
-| Bottom | Ø90 x 7.5        | Base tray holding the PCB |
-| Shield | Ø88 x 0.6        | Thin insert between the PCB and the top face |
+| Body   | Size (mm)  | What it is |
+|--------|------------|------------|
+| Top    | Ø90 x 5.4  | Solid donut-piston lid: skin + central press post + 6 snap arms |
+| Bottom | Ø90 x 7.5  | Base tray holding the PCB |
 
 ## Building
 
@@ -22,7 +23,7 @@ version is pinned to match. Same verbs as the other subdirectories (run from the
 root so they route through the container, or `make -C enclosure …` inside it):
 
 ```bash
-make build   # validate + export coaster-{top,bottom,shield}.{step,stl}
+make build   # validate + export coaster-{top,bottom}.{step,stl}
 make test    # validate only: full recompute, every body a valid closed solid
 make clean
 ```
@@ -31,38 +32,31 @@ The STL files are the 3D printing assets; the STEP files are for CAD
 interference checks against the board (`make -C ../pcb review` exports the
 matching `coaster.step` board model).
 
-Material use (sliced at 0.20mm / 0.4 nozzle / 15% infill, and confirmed within
-2% by a measured 3-coaster print): Top 8.8 cm³ (~11g PLA), Bottom 10.7 cm³
-(~13g PLA), Shield 3.7 cm³ (~4.6g PETG) — about 29g and $0.60 of filament per
-coaster.
+Material use (solid volume from the model × 1.24 g/cm³ PLA; the bodies are
+thin-walled, so a real print lands close): Top 8.3 cm³ (~10 g), Bottom 11.9 cm³
+(~15 g) — about 25 g and ~$0.50 of filament per coaster. Re-slice to confirm.
 
 ## Liquid strategy
 
-The coaster lives under sweating glasses, and the spiral cuts in the flexure are an open
-path into the shell. The Shield is the answer: a continuous membrane over the whole PCB,
-so drips and condensation that get through the flexure land on it and shed outward
-instead of reaching the electronics, the bare battery contact, or the switch. It is
-printed in clear PETG (not PLA like the rest of the shell): the LED light has to pass
-through it, and a wet-environment membrane should not hydrolyze.
+The coaster lives under sweating glasses. The v0.2 lid was a spiral flexure whose cuts
+were an open path into the shell, plugged by a separate clear-PETG shield membrane. The
+v0.3 donut-piston removes the problem instead of patching it: the top is a **continuous
+solid skin with no cuts**, so drips and condensation that reach it shed outward and never
+find a path to the electronics, the bare battery contact, or the switch. The lid is its
+own barrier — which is why v0.3 has no Shield body.
 
-The shield currently snap-fits around the center press-post by hoop tension, which has
-two long-term weaknesses: plastic creep slowly relaxes the grip, and every button press
-flexes the already-stressed hole edge. Planned change (CAD TODO): a shallow retention
-groove in the post at shield height, so the shield drops in over a chamfered tip and
-seats relaxed -- located by shape, with no standing stress.
+## Press mechanics
 
-## Design constraints (v0.2 board, which this enclosure fits)
+The donut-piston's click force and travel are simulated in `sim/` — an axisymmetric FEA
+of the Top sliced straight from this `coaster.FCStd` and calibrated to a measured press.
+See `sim/README.md`.
+
+## Design constraints (50 x 50 mm board)
 
 - Board outline: 50 x 50 mm, 3 mm mounting holes in all four corners at
   (3, 3), (3, 47), (47, 3), (47, 47).
-- The flexure must press the button at the board center.
-- Center clearance: the LED ring sits 6 mm from center; a center press-post
-  must stay narrower than ~9 mm so it does not cover the LEDs.
-
-## Changes for a future v0.3 enclosure
-
-- Battery holder shrinks: the CR2016 holder (MY-2016-02) is 2.2 mm tall vs the
-  v0.2 CR2032 holder's 3.6 mm — about button height, no longer the dominant
-  thickness constraint.
-- The UPDI programming header (J1, board edge near a corner) replaces the ISP
-  header; keep it reachable or accept opening the shell to reflash.
+- The piston must press the button at the board center.
+- Center clearance: the LED ring sits 6 mm from center; the central press post
+  must stay narrow enough not to cover the LEDs.
+- The UPDI programming header (J1, near a board-edge corner) must stay reachable,
+  or accept opening the shell to reflash.
