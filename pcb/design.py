@@ -25,15 +25,15 @@ PARTS = {
     "C1":  Part("Capacitor_SMD:C_0603_1608Metric", "100nF"),
     "C2":  Part("Capacitor_SMD:C_0805_2012Metric", "22uF"),
     "C3":  Part("Capacitor_SMD:C_0603_1608Metric", "100nF"),
-    "R1":  Part("Resistor_SMD:R_0603_1608Metric", "150"),
-    "R2":  Part("Resistor_SMD:R_0603_1608Metric", "150"),
-    "R3":  Part("Resistor_SMD:R_0603_1608Metric", "150"),
-    "R4":  Part("Resistor_SMD:R_0603_1608Metric", "150"),
+    "R1":  Part("Resistor_SMD:R_0603_1608Metric", "100"),
+    "R2":  Part("Resistor_SMD:R_0603_1608Metric", "100"),
+    "R3":  Part("Resistor_SMD:R_0603_1608Metric", "100"),
+    "R4":  Part("Resistor_SMD:R_0603_1608Metric", "100"),
     "R5":  Part("Resistor_SMD:R_0603_1608Metric", "100k"),
-    "L1":  Part("LED_SMD:LED_0603_1608Metric", "XL-1608UWC-04"),
-    "L2":  Part("LED_SMD:LED_0603_1608Metric", "XL-1608UWC-04"),
-    "L3":  Part("LED_SMD:LED_0603_1608Metric", "XL-1608UWC-04"),
-    "L4":  Part("LED_SMD:LED_0603_1608Metric", "XL-1608UWC-04"),
+    "L1":  Part("LED_SMD:LED_0603_1608Metric", "KT-0603W"),
+    "L2":  Part("LED_SMD:LED_0603_1608Metric", "KT-0603W"),
+    "L3":  Part("LED_SMD:LED_0603_1608Metric", "KT-0603W"),
+    "L4":  Part("LED_SMD:LED_0603_1608Metric", "KT-0603W"),
     "H1":  Part("MountingHole:MountingHole_3mm", "3mm"),
     "H2":  Part("MountingHole:MountingHole_3mm", "3mm"),
     "H3":  Part("MountingHole:MountingHole_3mm", "3mm"),
@@ -101,10 +101,10 @@ PLACEMENT = {
 LCSC = {
     "U1":  "C2052951",  # ATtiny202-SSN, SOIC-8 (Extended — confirm stock; ATtiny402 = drop-in)
     "Q1":  "C20917",    # AO3400A logic-level N-MOSFET, SOT-23 (Basic)
-    "L1":  "C965808", "L2": "C965808", "L3": "C965808", "L4": "C965808",  # XL-1608UWC-04 (Extended)
+    "L1":  "C2290", "L2": "C2290", "L3": "C2290", "L4": "C2290",  # KT-0603W white LED (Basic) — 360mcd@5mA, Vf 2.6-3.1V; ~11x brighter than the old XL-1608UWC-04 at operating current
     "SW1": "C318884",   # TS-1187A-B-A-B tactile switch (Extended)
     "BT1": "C2979176",  # MY-2016-02 CR2016 holder (Extended)
-    "R1":  "C22808", "R2": "C22808", "R3": "C22808", "R4": "C22808",  # 150R 0603 1% (Basic)
+    "R1":  "C22775", "R2": "C22775", "R3": "C22775", "R4": "C22775",  # 100R 0603 1% (Basic) — LED current limiter; tune on first article
     "R5":  "C25803",    # 100k 0603 1% (Basic)
     "C1":  "C14663",    # 100nF 0603 X7R 50V (Basic)
     "C2":  "C45783",    # 22uF 0805 25V X5R (Basic)

@@ -252,7 +252,7 @@
 				)
 			)
 		)
-		(property "Value" "XL-1608UWC-04"
+		(property "Value" "KT-0603W"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "9c7b75f8-e46a-4c01-8510-49d438f37037")
@@ -448,7 +448,7 @@
 				)
 			)
 		)
-		(property "Value" "XL-1608UWC-04"
+		(property "Value" "KT-0603W"
 			(at 0 1.43 270)
 			(layer "F.Fab")
 			(uuid "ad386b83-a361-474e-af89-d92b0c0b0237")
@@ -751,7 +751,7 @@
 				)
 			)
 		)
-		(property "Value" "150"
+		(property "Value" "100"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "796d140e-a174-41da-bb0e-665149787388")
@@ -898,7 +898,7 @@
 				)
 			)
 		)
-		(property "Value" "150"
+		(property "Value" "100"
 			(at 0 1.43 180)
 			(layer "F.Fab")
 			(uuid "1765b4a7-2ccf-4ed7-bc36-d18ec7d85c9a")
@@ -1864,7 +1864,7 @@
 				)
 			)
 		)
-		(property "Value" "XL-1608UWC-04"
+		(property "Value" "KT-0603W"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "de658b85-aa88-489d-b149-b42222c7cf78")
@@ -2060,7 +2060,7 @@
 				)
 			)
 		)
-		(property "Value" "XL-1608UWC-04"
+		(property "Value" "KT-0603W"
 			(at 0 1.43 180)
 			(layer "F.Fab")
 			(uuid "eb98dd6f-573b-4781-a3cb-bd7378ff6a5c")
@@ -2403,7 +2403,7 @@
 				)
 			)
 		)
-		(property "Value" "150"
+		(property "Value" "100"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "f9b4135d-5fba-4657-a39c-087fbfb2f6e0")
@@ -2903,7 +2903,7 @@
 				)
 			)
 		)
-		(property "Value" "150"
+		(property "Value" "100"
 			(at 0 1.43 270)
 			(layer "F.Fab")
 			(uuid "91b68276-b736-4c60-9aec-30eaea02ee5e")

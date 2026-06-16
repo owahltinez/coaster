@@ -42,7 +42,7 @@ VCC:      BT1+, U1-1, C1-1, C2-1, R1-1, R2-1, R3-1, R4-1, J1-2 (UPDI header VDD)
 GND:      BT1-, U1-8, C1-2, C2-2, Q1-source, SW1-(2nd terminal), C3-2, R5-2, J1-3
 LED_PWM:  U1-7 (PA3), Q1-gate, R5-1 (100k pulldown to GND)
 LED_K:    Q1-drain, L1-cathode, L2-cathode, L3-cathode, L4-cathode
-LED legs: VCC → R{1..4} (150Ω) → L{1..4} anode ; all cathodes → LED_K
+LED legs: VCC → R{1..4} (100Ω) → L{1..4} anode ; all cathodes → LED_K
 BUTTON:   U1-2 (PA6), SW1-(1st terminal), C3-1 (100nF debounce, optional)
 UPDI:     U1-6 (PA0), J1-1
 ```
@@ -51,8 +51,10 @@ Notes:
 
 - R5 (gate pulldown) keeps the LEDs off while PA3 floats during programming/reset.
 - C1 must sit physically adjacent to U1 pins 1/8; C2 anywhere near the battery holder.
-- 150Ω per LED ≈ 2–4mA per LED across the battery's life (3.2V fresh → 2.8V worn);
-  total LED load ~8–16mA. Through the MOSFET, the MCU pin only drives gate charge.
+- 100Ω per LED ≈ 3–5mA per LED fresh (3.2V → Vf 2.7V across 100Ω), tapering toward ~0
+  as the cell sags to Vf; total LED load ~12–20mA fresh. Through the MOSFET, the MCU pin
+  only drives gate charge. (The resistor is more ballast than limiter at this headroom —
+  matches the four parallel LEDs; first-article measurement sets the final value.)
 - J1: 1×3 through-hole pads, 2.54mm pitch, near the board edge: [UPDI | VDD | GND].
   Through-hole so a header can be pressed in at an angle or soldered for batch work.
 
@@ -62,8 +64,8 @@ Notes:
 |-----|------|---------|--------|------|-----------|
 | U1 | ATtiny202-SSN | SOIC-8 | C2052951 (-SSNR) | Extended | 0.43 |
 | Q1 | AO3400A N-MOSFET | SOT-23 | C20917 | Basic | 0.01 |
-| L1–L4 | White LED XL-1608UWC-04 | 0603 | C965808 | Extended | 0.01 |
-| R1–R4 | 150Ω 1% | 0603 | C22808 | Basic | 0.001 |
+| L1–L4 | White LED KT-0603W | 0603 | C2290 | Basic | 0.003 |
+| R1–R4 | 100Ω 1% | 0603 | C22775 | Basic | 0.001 |
 | R5 | 100kΩ 1% | 0603 | C25803 | Basic | 0.001 |
 | C1 | 100nF X7R 50V | 0603 | C14663 | Basic | 0.001 |
 | C2 | 22µF X5R 25V | 0805 | C45783 | Basic | 0.01 |
@@ -75,8 +77,8 @@ These LCSC numbers are the source of truth in `design.py`'s `LCSC` map, from
 which `make fab` emits the BOM — the table here is documentation. The five
 non-jellybean parts are deliberate (see below); the passives are pinned to
 in-stock JLCPCB *Basic* SKUs (no feeder fee), substitutable by any same
-value/package/tolerance Basic part if one lapses. Per-board parts ≈ $0.74 USD. Extended parts (U1, L1–L4, SW1, BT1) cost a $3 feeder fee
-each per order — $0.40/board at qty 30. Option: leave BT1 off the assembly and
+value/package/tolerance Basic part if one lapses. Per-board parts ≈ $0.74 USD. Extended parts (U1, SW1, BT1) cost a $3 feeder fee
+each per order — $0.30/board at qty 30. Option: leave BT1 off the assembly and
 hand-solder it (two large pads) to save its fee.
 
 Part choices worth defending:
@@ -84,10 +86,14 @@ Part choices worth defending:
 - **Q1 must be a logic-level FET.** The AO3400A (Vgs(th) 0.65–1.45V) is fully enhanced
   at worn-cell voltage; a 2N7002 (Vgs(th) up to 2.5V worst-case) would be driven barely
   above threshold for most of the cell's life and read as dim/flickering LEDs.
-- **L1–L4 buy brightness, not cost.** The XL-1608UWC-04 delivers 400 min / 630 typ mcd
-  @ 20mA versus the basic-catalog KT-0603W's 173–207 — about 3× the light at the same
-  current, in the same footprint, with coin-cell-friendly Vf. The glow is the entire
-  point of the device, so this is the one place the feeder fee is clearly worth it.
+- **L1–L4: efficiency at coin-cell current, not headline mcd.** Every white LED is
+  ~2.7–3.4V Vf (blue die + phosphor), and a CR2016 offers only ~0.3V above Vf — so the
+  LEDs run at a few mA, never their 20mA rating, and the figure that matters is light
+  per mA at low current, not mcd@20mA. The KT-0603W (Basic, C2290) gives 360mcd @ 5mA
+  (~72 mcd/mA) versus the XL-1608UWC-04's 130mcd @ 20mA (~6.5 mcd/mA): ~11× the light at
+  the current this circuit actually delivers — and it's a Basic part, so no feeder fee.
+  The glow is the entire point of the device; this is where it's bought. (An earlier
+  revision had this backwards and paid a feeder fee for the dimmer part — see git log.)
 - **SW1 is mechanically load-bearing.** The enclosure flexure is dimensioned around
   this switch's body height and actuation force, and its footprint is the one extracted
   from the manufactured v0.2 board. A basic-catalog switch would save $0.10/board and
@@ -152,8 +158,13 @@ lives in the first-article checklist below.
 - [ ] Programming via UPDI header works
 - [ ] Sleep current measured < 5µA
 - [ ] Show plays on button press; press costs no measurable charge
-- [ ] Brightness through an actual glass: 150Ω is a starting value, not a decision —
-      if too dim, rework toward 100Ω and re-measure worn-battery behavior
+- [ ] Brightness through an actual glass: 100Ω is a starting value, not a decision —
+      if too dim, rework toward 68Ω and re-measure worn-battery behavior; if it drains
+      too fast, back off toward 150Ω
+- [ ] LED polarity on the assembly preview: cathode (pad 1) faces the board center
+      (LED_K). The KT-0603W is a new part vs the preview-checked rc1 LED — confirm its
+      orientation; if reversed, add the LED footprint to ROTATION_CORRECTION (+180) and
+      re-run `make fab` (CPL only; gerbers unchanged)
 - [ ] Worn-battery test: show degrades gracefully (dims) with no reset loop
 - [ ] Bench-supply + series-resistor test (30–50Ω) simulating a dying cell
 - [ ] Press during show, long-press, rapid double-press behave sanely
