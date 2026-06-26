@@ -94,9 +94,14 @@ def locate(binary):
     raise FileNotFoundError(f"{binary} not found (looked on PATH and {candidates})")
 
 
-def _arm_present(poly):
-    """True if the meridian carries material below the ring (a snap arm was cut)."""
-    return any(r > 5.0 and z < 7.0 for r, z in poly)
+def _below_disc_depth(poly):
+    """Lowest z the meridian carries outboard of the press post (r > 5 mm).
+
+    For an arm-free slice this is the lid disc underside (the seat plane); where
+    a snap arm is cut, the section runs much deeper. Returned as the selector for
+    an arm-free azimuth, so no absolute height is assumed -- the slice tracks a
+    re-dimensioned lid instead of a hard-coded z."""
+    return min((z for r, z in poly if r > 5.0), default=float("inf"))
 
 
 def _meridian_at(shape, az_deg):
@@ -123,15 +128,22 @@ def _meridian_at(shape, az_deg):
 def meridian_polygon(shape):
     """Cut the solid through an arm-free axial plane; return the (r,z) meridian.
 
-    Sweeps azimuths to find one whose section misses the polar-patterned snap
-    arms (they break axisymmetry and carry no press load), so the polygon is the
-    pure body of revolution.
+    Sweeps one snap-arm period of azimuths and keeps the section that carries the
+    least material below the lid disc: the polar-patterned arms (they break
+    axisymmetry and carry no press load) drag the section deep where they are
+    cut, so the shallowest slice is the pure body of revolution.
     """
+    best_az, best_poly, best_depth = None, None, -float("inf")
     for az in range(0, 60, 5):
         poly = _meridian_at(shape, az)
-        if poly and not _arm_present(poly):
-            return az, poly
-    raise RuntimeError("no arm-free meridian azimuth found")
+        if not poly:
+            continue
+        depth = _below_disc_depth(poly)
+        if depth > best_depth:
+            best_az, best_poly, best_depth = az, poly, depth
+    if best_poly is None:
+        raise RuntimeError("no meridian section found")
+    return best_az, best_poly
 
 
 def write_geo(path, poly, size=MESH_SIZE):
