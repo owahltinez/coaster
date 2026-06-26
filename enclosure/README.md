@@ -79,10 +79,13 @@ fragility hotspot. The flexing beam is short (~1.5 mm), so even the ~0.25 mm it 
 to clear the wall lip on insertion is a high bending strain at the root — the arms crack
 there. Levers, in order of effect:
 
-- **Beam thickness** (`Sketch004` datum 16, the radial dimension) — strain scales linearly
-  with it. Reduced from 1.75 to **1.0 mm** to roughly halve the root strain. This makes the
-  arm much more compliant (bending stiffness ~t³, so retention force drops a lot too); if
-  the lid pops off too easily, take it back toward 1.2–1.4 mm.
+- **Beam thickness** (`Sketch004` datum 16, the radial dimension) — set to **1.6 mm**, the
+  thickest the root fillets allow with the hook at mid-beam (1.8 mm+ makes the fillets fail
+  to resolve). Two effects trade off: thicker prints more robustly with better layer bonding
+  (a thin ~1.0 mm arm prints as a fragile near-single-wall column), but thicker also raises
+  the bending strain on the ~0.25 mm snap-over. Which dominates is a print-test question.
+  That thick + fillet fight for room at the root is the argument for eventually moving the
+  hook to the tip — it frees the root for a thick, well-filleted, long-flexing beam.
 - **Material** — print in **PETG** (ductile; the press sim assumes it). PLA snaps.
 - **Orientation** — the arms bend radially, so on a flat-printed lid the layer lines run
   *across* the bending plane and the root fails by delamination regardless of strain. There
