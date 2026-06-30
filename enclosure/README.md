@@ -62,9 +62,32 @@ thin-walled, so a real print lands close): Top 8.3 cm³ (~10 g), Bottom 11.4 cm�
 The coaster lives under sweating glasses. The v0.2 lid was a spiral flexure whose cuts
 were an open path into the shell, plugged by a separate clear-PETG shield membrane. The
 v0.3 donut-piston removes the problem instead of patching it: the top is a **continuous
-solid skin with no cuts**, so drips and condensation that reach it shed outward and never
-find a path to the electronics, the bare battery contact, or the switch. The lid is its
-own barrier — which is why v0.3 has no Shield body.
+solid skin with no through-cuts**, so drips and condensation that reach it shed outward and
+never find a path to the electronics, the bare battery contact, or the switch. The lid is
+its own barrier — which is why v0.3 has no Shield body.
+
+**Anti-stick web.** A bare smooth skin has a second liquid problem: a sweat film between a
+glass base and the flat top is a capillary bond — order ~N of pull, against the coaster's
+own ~0.24 N weight — that lifts the whole lightweight coaster when the glass is raised. The
+lift is killed by *venting*, not by removing contact area (even half the area still pulls
+~N). The glass face carries a shallow **polar web** of grooves (0.4 mm deep × 1.4 mm wide)
+that vents the film the instant the glass lifts:
+
+- **6 concentric rings + a rim ring** put every contact point within ~1 mm of a channel, so
+  no suction can build over a peeling patch (the transient pull scales as that distance⁴).
+- **24 radial spokes** run to the rim, tying the ring network to open air, so the web vents
+  for *any* glass-base size — not just bases small enough to overhang the pattern.
+
+The grooves are **blind**: floors leave ≥ 1.2 mm of skin in the disc, so the waterproof
+barrier is intact. The two thin (0.4 mm) flexure hinges are the only places a groove can't
+freely go. The inner hinge and the central button/LED zone are left ungrooved; the spokes
+cross the **outer** hinge over a **continuous 0.6 mm backing ring** on the underside, which
+(a) lets the spoke notches cross without breaching (≥ 0.4 mm skin remains) and (b) backs the
+hinge enough to make the click ~10% *firmer* than the smooth lid, offsetting the disc
+softening from the rings. The ring is axisymmetric, so `sim/` predicts that press shift
+directly; the spokes are the only non-axisymmetric feature and the sim slices around them.
+A crosshatch was rejected: it can't cross the thin hinge without islanding the membrane, and
+a Cartesian grid fights a circular boundary.
 
 ## Press mechanics
 

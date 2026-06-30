@@ -125,24 +125,44 @@ def _meridian_at(shape, az_deg):
     return out
 
 
-def meridian_polygon(shape):
-    """Cut the solid through an arm-free axial plane; return the (r,z) meridian.
+def _section_area(poly):
+    """Meridian cross-section area (shoelace), used to pick a spoke-free slice.
 
-    Sweeps one snap-arm period of azimuths and keeps the section that carries the
-    least material below the lid disc: the polar-patterned arms (they break
-    axisymmetry and carry no press load) drag the section deep where they are
-    cut, so the shallowest slice is the pure body of revolution.
+    Among arm-free azimuths a through-spoke cut carves a full-length groove strip
+    out of the section (less area); a between-spoke cut keeps it. So the largest
+    arm-free section is the spoke-free one. Exact on straight edges (unlike point
+    sampling, which a discretized polygon leaves bare between vertices)."""
+    n = len(poly)
+    return abs(sum(poly[i][0] * poly[(i + 1) % n][1] - poly[(i + 1) % n][0] * poly[i][1]
+                   for i in range(n))) / 2.0
+
+
+def meridian_polygon(shape):
+    """Cut the solid through an arm-free, spoke-free axial plane; return (r,z).
+
+    Two features break strict axisymmetry and must be sliced around:
+      - the 6 polar snap arms carry no press load but drag the section deep where
+        cut, so we keep the *shallowest* slice (max ``_below_disc_depth``);
+      - the anti-stick web's 24 radial spokes + underside bosses are likewise not
+        a body of revolution. They are ~10% of the hinge circumference and the
+        boss stiffens the hinge about as much as the spokes soften it, so their
+        net press effect is a few %; the axisymmetric model cannot represent them
+        (a through-spoke slice would model the whole disc as grooved). We slice
+        *between* spokes (max ``_top_fill``), which faithfully captures what IS
+        axisymmetric -- the concentric rings and the bulk disc/hinge. Resolving
+        the spokes/bosses exactly would need a 3D solve.
     """
-    best_az, best_poly, best_depth = None, None, -float("inf")
+    cands = []
     for az in range(0, 60, 5):
         poly = _meridian_at(shape, az)
-        if not poly:
-            continue
-        depth = _below_disc_depth(poly)
-        if depth > best_depth:
-            best_az, best_poly, best_depth = az, poly, depth
-    if best_poly is None:
+        if poly:
+            cands.append((az, poly, _below_disc_depth(poly)))
+    if not cands:
         raise RuntimeError("no meridian section found")
+    # arm-free first (shallowest), then spoke-free among those (largest section)
+    max_depth = max(d for *_, d in cands)
+    arm_free = [(az, poly) for az, poly, d in cands if d >= max_depth - 0.05]
+    best_az, best_poly = max(arm_free, key=lambda ap: _section_area(ap[1]))
     return best_az, best_poly
 
 
@@ -214,10 +234,15 @@ def write_inp(path, nodes, tris, seat_in_r, load_r0, load_r1, force, rigid=False
     seat_z = min(nodes[n][1] for n in seat_nodes)
     seat = [n for n in seat_nodes if nodes[n][1] <= seat_z + 0.15]
     axis = [nid for nid, (r, z) in nodes.items() if r < 0.02]
-    band = [nid for nid, (r, z) in nodes.items()
-            if z >= top_z - 0.05 and load_r0 - 1e-6 <= r <= load_r1 + 1e-6]
-    if not band:
-        raise ValueError(f"no top-face nodes in load band [{load_r0}, {load_r1}]")
+    in_band = [nid for nid, (r, z) in nodes.items()
+               if load_r0 - 1e-6 <= r <= load_r1 + 1e-6]
+    if not in_band:
+        raise ValueError(f"no nodes in load band [{load_r0}, {load_r1}]")
+    # Load the top surface *within this band*: a narrow band can fall inside a
+    # ring groove, where the face is recessed below the global top_z. Keying off
+    # the local top makes the ring-load robust to grooved load radii.
+    band_top = max(nodes[nid][1] for nid in in_band)
+    band = [nid for nid in in_band if nodes[nid][1] >= band_top - 0.05]
 
     # CalculiX axisymmetric elements need positive (counter-clockwise) area in
     # the r-z plane; Gmsh may emit either winding, so flip the clockwise ones.
