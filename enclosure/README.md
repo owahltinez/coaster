@@ -66,30 +66,32 @@ solid skin with no through-cuts**, so drips and condensation that reach it shed 
 never find a path to the electronics, the bare battery contact, or the switch. The lid is
 its own barrier — which is why v0.3 has no Shield body.
 
-**Anti-stick grid.** A bare smooth skin has a second liquid problem: a sweat film between a
+**Anti-stick bumps.** A bare smooth skin has a second liquid problem: a sweat film between a
 glass base and the flat top is a capillary bond — order ~N of pull, against the coaster's
 own ~0.24 N weight — that lifts the whole lightweight coaster when the glass is raised. The
 lift is killed by *venting*, not by removing contact area (even half the area still pulls
 ~N, and even a heavy glass carries no help — the glass's weight is on the hand, not on the
-coaster). The glass face carries a **uniform crosshatch grid** (4 mm pitch, 1.4 mm wide ×
-0.4 mm deep) that breaks the contact into ~2.6 mm patches — every point within ~1.3 mm of a
-channel, so no suction can build over a peeling patch (the transient pull scales as that
-distance⁴). The grid runs edge to edge, so it vents to the rim for *any* glass-base size.
+coaster). The glass face is broken into an array of **circular bumps** (Ø4 mm plateaus at the
+glass face, 0.4 mm proud) laid out in **concentric rings** — rotationally symmetric about the
+centre, so the pattern reads as centred on the round lid rather than a lattice sitting on it.
+The 0.4 mm-recessed field weaving between the bumps is one connected network that vents to the
+rim, and every point is within ~2 mm of it, so no suction builds over a peeling patch (the
+transient pull scales as that distance⁴). Bumps never touch, so no channel closes into a
+sealed pocket (an isolated *dimple* would be a suction cup — the opposite of the goal).
 
-The grooves are **blind**: floors leave ≥ 1.2 mm of skin in the disc, so the waterproof
-barrier is intact. The two thin (0.4 mm) flexure hinges are the constraint. The inner hinge
-and the central button/LED zone are left ungrooved (blank center). The grid crosses the
-**outer** hinge over a **continuous 0.6 mm backing ring** on the underside, which does three
-jobs: (a) as a continuous plate it face-supports the criss-cross so the thin membrane isn't
-islanded into loose tiles (a *discrete* bump under each groove wouldn't — it meets the tiles
-only at edges); (b) the grid tapers to a 0.2 mm notch across it, leaving ≥ 0.4 mm skin; and
-(c) it thickens the hinge just enough to make the click **~10% firmer** than the smooth lid,
-offsetting the grid's disc softening. Barrier thickness and click stiffness are the same knob
-here (both are the backing thickness), so 0.4 mm floor ↔ +10%. The ring is axisymmetric, so
-`sim/` predicts the press shift directly; the grid grooves are the non-axisymmetric feature
-and the sim slices around them (see `meridian_polygon`). A radial spider-web was the earlier
-form but read as busy; the uniform grid is calmer and, over the backing ring, still crosses
-the hinge — the square cells just meet the round rim in partial cells.
+The recess is **blind**: floors leave ≥ 1.2 mm of skin in the disc, so the waterproof barrier
+is intact. The two thin (0.4 mm) flexure hinges are the constraint. The inner hinge and the
+central button/LED zone are left flat (a solid round centre). Across the **outer** hinge the
+field runs over a **continuous 0.6 mm backing ring** on the underside, which (a) as a solid
+plate keeps the recessed field a connected watertight floor there rather than islanding it,
+(b) shallows to a 0.2 mm recess across the hinge, leaving ≥ 0.4 mm skin, and (c) thickens the
+hinge just enough to make the click **~10% firmer** than the smooth lid, offsetting the disc
+softening. Barrier thickness and click stiffness are the same knob (both the backing
+thickness), so 0.4 mm floor ↔ +10%. The ring is axisymmetric, so `sim/` predicts the press
+shift directly; the bumps are the non-axisymmetric feature and the sim slices around them
+(see `meridian_polygon`). Earlier forms — a radial spider-web, then a square grid — read as
+busy or off-centre on the circular face; round bumps in rings are calm and concentric, and
+build by recessing the field in bands then padding the bumps back to the glass face.
 
 ## Press mechanics
 
