@@ -83,13 +83,15 @@ texture is **v0.3.1** (`coaster.FCStd`, the live source).
 A shallow *recessed field* between raised dots (an earlier printed attempt) makes it **worse**:
 sweat floods the 0.4 mm field, bridges into one continuous film, and the whole thing becomes a
 suction cup. The lesson from that print: the fix is **drainage**, not contact-area reduction.
-v0.3.1 cuts **24 radial channels** (1.0 mm wide × 0.4 mm deep) running from r≈13 out to the
-rim. Because they reach the edge, they *drain* sweat off the coaster and give air a straight
-path in the instant the glass lifts — no standing film to seal. Radial (not a grid or field)
-also prints well: the rim between channels stays flat, so the face-down print keeps a
-near-continuous first-layer perimeter.
+v0.3.1 cuts **12 radial channels** (2.5 mm wide × 0.8 mm deep) running from r≈13 to r≈42. They
+*drain* sweat off toward the edge and give air a straight path in the instant the glass lifts —
+no standing film to seal. (A first print with 24 thin 1.0 × 0.4 mm lines was wrong: the lines
+were too small to feel and fused, and running them to the very rim printed jagged. Fewer, much
+wider and deeper channels that stop ~3 mm short of the edge print cleanly and are actually
+felt.) Radial (not a grid or field) also prints well: the rim between channels stays flat, and
+the flat r42–45 band gives the face-down print a clean, continuous first-layer perimeter.
 
-The channels are **blind**: floors leave ≥ 1.2 mm of skin in the disc, so the waterproof barrier
+The channels are **blind**: floors leave ≥ 0.8 mm of skin in the disc, so the waterproof barrier
 holds; plateaus between them are full thickness. The one constraint is the 0.4 mm outer flexure
 hinge — a full-depth groove there would breach it — so the channels cross it over a **continuous
 0.6 mm backing ring** on the underside, shallowing to a 0.2 mm notch across the hinge (≥ 0.4 mm
