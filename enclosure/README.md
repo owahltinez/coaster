@@ -66,34 +66,30 @@ solid skin with no through-cuts**, so drips and condensation that reach it shed 
 never find a path to the electronics, the bare battery contact, or the switch. The lid is
 its own barrier — which is why v0.3 has no Shield body.
 
-**Anti-stick bumps.** A bare smooth skin has a second liquid problem: a sweat film between a
-glass base and the flat top is a capillary bond — order ~N of pull, against the coaster's
-own ~0.24 N weight — that lifts the whole lightweight coaster when the glass is raised. The
-lift is killed by *venting*, not by removing contact area (even half the area still pulls
-~N, and even a heavy glass carries no help — the glass's weight is on the hand, not on the
-coaster). The glass face is broken into an array of **circular bumps** (Ø4 mm plateaus at the
-glass face, 0.4 mm proud) laid out in **concentric rings** — rotationally symmetric about the
-centre, so the pattern reads as centred on the round lid rather than a lattice sitting on it.
-The 0.4 mm-recessed field weaving between the bumps is one connected network that vents to the
-rim, and every point is within ~2 mm of it, so no suction builds over a peeling patch (the
-transient pull scales as that distance⁴). Bumps never touch, so no channel closes into a
-sealed pocket (an isolated *dimple* would be a suction cup — the opposite of the goal).
+**Anti-stick — flat v0.3, radial ridges in v0.3.1.** A bare smooth skin has a second liquid
+problem: a sweat film between a glass base and the flat top is a capillary bond — order ~N of
+pull, against the coaster's own ~0.24 N weight — that lifts the whole lightweight coaster when
+the glass is raised. **v0.3** ships the plain flat lid (`coaster-v0.3.FCStd`); the anti-stick
+texture is **v0.3.1** (`coaster.FCStd`, the live source).
 
-The recess is **blind**: floors leave ≥ 1.2 mm of skin in the disc, so the waterproof barrier
-is intact. The two thin (0.4 mm) flexure hinges are the constraint. The inner hinge and the
-central button/LED zone are left flat (a solid round centre), and the outer ~3 mm (r 42–45)
-is a **solid raised ring** — a continuous first-layer perimeter for the face-down print, since
-a recessed rim would leave the edge with no material to print against. Across the **outer** hinge the
-field runs over a **continuous 0.6 mm backing ring** on the underside, which (a) as a solid
-plate keeps the recessed field a connected watertight floor there rather than islanding it,
-(b) shallows to a 0.2 mm recess across the hinge, leaving ≥ 0.4 mm skin, and (c) thickens the
-hinge just enough to make the click **~10% firmer** than the smooth lid, offsetting the disc
-softening. Barrier thickness and click stiffness are the same knob (both the backing
-thickness), so 0.4 mm floor ↔ +10%. The ring is axisymmetric, so `sim/` predicts the press
-shift directly; the bumps are the non-axisymmetric feature and the sim slices around them
-(see `meridian_polygon`). Earlier forms — a radial spider-web, then a square grid — read as
-busy or off-centre on the circular face; round bumps in rings are calm and concentric, and
-build by recessing the field in bands then padding the bumps back to the glass face.
+A shallow *recessed field* between raised dots (an earlier printed attempt) makes it **worse**:
+sweat floods the 0.4 mm field, bridges into one continuous film, and the whole thing becomes a
+suction cup. The lesson from that print: the fix is **drainage**, not contact-area reduction.
+v0.3.1 cuts **24 radial channels** (1.0 mm wide × 0.4 mm deep) running from r≈13 out to the
+rim. Because they reach the edge, they *drain* sweat off the coaster and give air a straight
+path in the instant the glass lifts — no standing film to seal. Radial (not a grid or field)
+also prints well: the rim between channels stays flat, so the face-down print keeps a
+near-continuous first-layer perimeter.
+
+The channels are **blind**: floors leave ≥ 1.2 mm of skin in the disc, so the waterproof barrier
+holds; plateaus between them are full thickness. The one constraint is the 0.4 mm outer flexure
+hinge — a full-depth groove there would breach it — so the channels cross it over a **continuous
+0.6 mm backing ring** on the underside, shallowing to a 0.2 mm notch across the hinge (≥ 0.4 mm
+skin remains). The inner hinge and the central button/LED zone are left ungrooved. The backing
+ring is axisymmetric, so `sim/` sees it — it also firms the click ~10%; the radial channels are
+the non-axisymmetric feature and the sim slices between them (see `meridian_polygon`). Earlier
+forms — a spider-web, a square grid, a bump field — were busier, off-centre on the round face,
+or (the bump field) actively worse in a print; simple radial drainage channels are the result.
 
 ## Press mechanics
 
