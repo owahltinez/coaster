@@ -81,7 +81,9 @@ sealed pocket (an isolated *dimple* would be a suction cup — the opposite of t
 
 The recess is **blind**: floors leave ≥ 1.2 mm of skin in the disc, so the waterproof barrier
 is intact. The two thin (0.4 mm) flexure hinges are the constraint. The inner hinge and the
-central button/LED zone are left flat (a solid round centre). Across the **outer** hinge the
+central button/LED zone are left flat (a solid round centre), and the outer ~3 mm (r 42–45)
+is a **solid raised ring** — a continuous first-layer perimeter for the face-down print, since
+a recessed rim would leave the edge with no material to print against. Across the **outer** hinge the
 field runs over a **continuous 0.6 mm backing ring** on the underside, which (a) as a solid
 plate keeps the recessed field a connected watertight floor there rather than islanding it,
 (b) shallows to a 0.2 mm recess across the hinge, leaving ≥ 0.4 mm skin, and (c) thickens the
