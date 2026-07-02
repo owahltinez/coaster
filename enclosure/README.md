@@ -24,13 +24,14 @@ tip on the button — at `BottomHeight` 6.5 the post is 3.5 mm. (v0.3.0 shipped 
 `BottomHeight` 7.5 / 9.1 mm tall; the tray was thinned 1.0 mm after the CR2016
 holder replaced the CR2032.)
 
-The tray floor under the board is reinforced to **1.8 mm** (a central Ø52 disc). The bare
-0.5 mm floor dimpled through to the underside when the board was pressed onto the pegs;
-bending stiffness goes as thickness³, so 1.8 mm is ~45× stiffer. The material pads up into the
-dead space *below* the board — which seats on the 2 mm corner ledge at z≈2.0 and has a flat
-underside — stopping **0.2 mm short** of it, so the flat board is backed almost fully and can't
-dimple, while the ledge still sets the seat height (print tolerance won't lift the board). It
-costs no height.
+The tray floor under the board (the `PCB Recess` pocket floor) is **0.6 mm** — three full
+print layers. It was 0.5 mm, an awkward 2.5 layers that printed thin and dimpled a little when
+the board was pressed onto the pegs. The board sits flat *on* this floor, so it can't be
+thickened much without cost: more material either raises the board into the tight lid/holder
+clearance or makes the coaster taller (the underside is flat on the table — no dead space). So
+the fix is minimal: make `PCB Recess` 0.1 mm shallower (1.5 → 1.4 mm), raising the whole indent
+floor uniformly to 0.6 mm. The board seat rises 0.1 mm (negligible for post travel) and overall
+height is unchanged.
 
 **This 1.0 mm is on probation — confirm it on a printed article before a batch.**
 The constraint is not static fit but press deflection: the donut-piston deflects
