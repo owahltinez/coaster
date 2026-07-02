@@ -92,14 +92,17 @@ felt.) Radial (not a grid or field) also prints well: the rim between channels s
 the flat r42–45 band gives the face-down print a clean, continuous first-layer perimeter.
 
 The channels are **blind**: floors leave ≥ 0.8 mm of skin in the disc, so the waterproof barrier
-holds; plateaus between them are full thickness. The one constraint is the 0.4 mm outer flexure
-hinge — a full-depth groove there would breach it — so the channels cross it over a **continuous
-0.6 mm backing ring** on the underside, shallowing to a 0.2 mm notch across the hinge (≥ 0.4 mm
-skin remains). The inner hinge and the central button/LED zone are left ungrooved. The backing
-ring is axisymmetric, so `sim/` sees it — it also firms the click ~10%; the radial channels are
-the non-axisymmetric feature and the sim slices between them (see `meridian_polygon`). Earlier
-forms — a spider-web, a square grid, a bump field — were busier, off-centre on the round face,
-or (the bump field) actively worse in a print; simple radial drainage channels are the result.
+holds; plateaus between them are full thickness. The channel depth is **uniform 0.8 mm the whole
+way** — including across the 0.4 mm outer flexure hinge, where a full-depth groove would otherwise
+breach. Rather than shallowing the groove there (which left an ugly depth step), the fix adds
+material on the *underside* directly beneath each channel at the hinge: **12 discrete backing bars**
+(3.5 mm wide × 1.2 mm) so 0.4 mm of skin remains under the 0.8 mm groove. Because the channels are
+radial, the bars don't island the thin membrane, and the hinge still flexes *between* them, so the
+click stays near the flat lid's (the bars are non-axisymmetric, so `sim/` slices between them and
+can't score their small stiffening; see `meridian_polygon`). The inner hinge and the central
+button/LED zone are left ungrooved. Earlier forms — a spider-web, a square grid, a bump field —
+were busier, off-centre on the round face, or (the bump field) actively worse in a print; simple
+uniform-depth radial drainage channels are the result.
 
 ## Press mechanics
 
