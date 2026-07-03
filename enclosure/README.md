@@ -89,8 +89,13 @@ v0.3.1 cuts **12 radial channels** (2.5 mm wide × 0.8 mm deep) running from r�
 no standing film to seal. (A first print with 24 thin 1.0 × 0.4 mm lines was wrong: the lines
 were too small to feel and fused, and running them to the very rim printed jagged. Fewer, much
 wider and deeper channels that stop ~3 mm short of the edge print cleanly and are actually
-felt.) Radial (not a grid or field) also prints well: the rim between channels stays flat, and
-the flat r42–45 band gives the face-down print a clean, continuous first-layer perimeter.
+felt.) The channel walls are **chamfered 45°** (`TaperAngle` on the pocket) — wide at the glass
+face, narrowing to a ~1.1 mm floor. Since the Top prints face-down, the channel is a recess in
+the bed-side surface; a square `]` profile would leave a flat, down-facing 2.5 mm floor that
+bridges and prints rough, whereas the chamfer makes the walls self-supporting overhangs and
+shrinks that bridge. It also drains better (no square corners to trap water). Radial (not a grid
+or field) also prints well: the rim between channels stays flat, and the flat r42–45 band gives
+the face-down print a clean, continuous first-layer perimeter.
 
 The channels are **blind**: floors leave ≥ 0.8 mm of skin in the disc, so the waterproof barrier
 holds; plateaus between them are full thickness. The channel depth is **uniform 0.8 mm the whole
