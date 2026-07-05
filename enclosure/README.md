@@ -12,19 +12,15 @@ each exported as its own print/CAD artifact:
 | Body   | Size (mm)  | What it is |
 |--------|------------|------------|
 | Top    | Ø90 x 5.4  | Solid donut-piston lid: skin + central press post + 6 snap arms |
-| Bottom | Ø90 x 6.0  | Base tray holding the PCB |
+| Bottom | Ø90 x 6.5  | Base tray holding the PCB |
 
-Assembled height is **7.6 mm** (the lid nests into the tray). The tray wall is
-the single height knob (`VarSet.BottomHeight`, now **6.0**): the lid sits on the wall
-rim and its placement, the snap-pocket depth, and the rim ceiling all track it, so
+Assembled height is **8.1 mm** (the lid nests into the tray). The tray wall is
+the single height knob (`VarSet.BottomHeight`): the lid sits on the wall rim and
+its placement, the snap-pocket depth, and the rim ceiling all track it, so
 changing `BottomHeight` moves the whole interlock rigidly. The one feature that
 does *not* track is the central `Press Post` (it grows down from the lid skin);
-normally its length must change by the same amount in the opposite sense to keep the
-post tip on the button. **On probation:** the tray was shortened 0.5 mm (6.5 → 6.0)
-*without* re-lengthening the post — spending ~0.5 mm of assembly play instead — so the
-lid now sits 0.5 mm closer to the board. Confirm on a print that the lid still seats
-(watch the battery-holder clearance) and the button feel is right; if it binds, raise
-`BottomHeight` back toward 6.2–6.5. The post is 3.5 mm. (v0.3.0 shipped at
+its length must change by the same amount in the opposite sense to keep the post
+tip on the button — at `BottomHeight` 6.5 the post is 3.5 mm. (v0.3.0 shipped at
 `BottomHeight` 7.5 / 9.1 mm tall; the tray was thinned 1.0 mm after the CR2016
 holder replaced the CR2032.)
 
