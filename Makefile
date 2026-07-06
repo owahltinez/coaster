@@ -21,7 +21,7 @@ PCB_RUN          ?= $(DOCKER_RUN) $(KICAD_IMAGE)
 FW_RUN           ?= $(DOCKER_RUN) $(FW_IMAGE)
 CAD_RUN          ?= $(DOCKER_RUN) $(CAD_IMAGE)
 
-.PHONY: build test clean flash fuses review fab sim image image-pcb image-fw image-cad
+.PHONY: build test clean flash fuses flash-loop review fab sim image image-pcb image-fw image-cad
 
 # Build the pinned toolchain images (run once, and after editing a Containerfile).
 image: image-pcb image-fw image-cad
@@ -47,8 +47,9 @@ clean:
 	$(MAKE) -C pcb clean
 	$(MAKE) -C enclosure clean
 
-# firmware only: program the chip, set fuses (host — needs the USB-serial adapter)
-flash fuses:
+# firmware only: program the chip, set fuses, or run the hands-free flashing
+# station that flashes boards as they're plugged in (host — needs the adapter)
+flash fuses flash-loop:
 	$(MAKE) -C firmware $@
 
 # pcb only: render / 1:1 PDF / STEP, and the JLCPCB order bundle (in the container)

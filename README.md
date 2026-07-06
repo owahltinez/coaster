@@ -152,6 +152,15 @@ make fuses   # once per chip: brown-out detector at 1.8V, sampled in sleep
 The fuses matter: the factory default leaves the BOD disabled, which allows undefined
 behavior when the battery sags, and the firmware's brown-out logic depends on it.
 
+For flashing a stack of boards hands-free, `make flash-loop` runs a continuous loop:
+plug a board onto the jig, it flashes + fuses + verifies automatically, then waits for
+you to remove it before arming the next. **The board reports its own result** — a good
+flash plays a distinct rapid blink and a failed one stays dark, so you never look at the
+screen. The blink is gated on a one-shot EEPROM flag the loop writes only after both
+flash and fuses verify (a single avrdude run, which aborts before the arm step on any
+earlier failure); the firmware blinks once on the next boot and clears the flag, so it
+fires exactly once per flash and never again in the field.
+
 Gotchas:
 
 - **Remove the coin cell before flashing.** The adapter drives VDD and would back-feed

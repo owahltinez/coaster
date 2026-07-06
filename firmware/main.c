@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
+#include <avr/eeprom.h>
 #include <util/delay.h>
 
 // LED brightness is a PWM duty cycle (0-255). Unlike v0.2, the LEDs have real
@@ -15,10 +16,38 @@
 #define LED_RAMP_STEP_MS 5
 #define LED_FADE_STEP_MS 10
 
+// Post-flash confirm: the flashing station writes FLASH_CONFIRM_ARMED to the
+// first EEPROM byte as its final step, only after flash + fuses both verify.
+// The first boot afterwards plays a distinct rapid blink -- so a hands-free
+// station shows success on the board itself -- then clears the flag, so it
+// fires exactly once per flash. A factory chip (0xFF) or an already-cleared
+// one never blinks, and a flash that erased EEPROM (to 0xFF) but then failed
+// before arming never reads as armed, so a confirm only ever means full success.
+#define FLASH_CONFIRM_ADDR    ((uint8_t *)0)
+#define FLASH_CONFIRM_ARMED   0xA5
+#define FLASH_CONFIRM_CLEARED 0x00
+#define FLASH_CONFIRM_BLINKS  4
+#define FLASH_CONFIRM_MS      80
+
 // A wake edge only counts as a press if the button still reads pressed this
 // much later. Filters contact bounce on *release* (which can also produce
 // falling edges) so lifting a glass off the coaster doesn't replay the show.
 #define BUTTON_DEBOUNCE_MS 20
+
+// Rapid full-brightness blink, visually distinct from the gentle multi-second
+// breathe of show(), so it reads as "just programmed" across a workbench.
+// Drives PA3 directly (no PWM) -- the LEDs run at the peak current set by
+// R1-R4, which is fine for a sub-second confirm.
+static void flash_confirm(void)
+{
+  for (uint8_t i = 0; i < FLASH_CONFIRM_BLINKS; i++)
+  {
+    PORTA.OUTSET = PIN3_bm;
+    _delay_ms(FLASH_CONFIRM_MS);
+    PORTA.OUTCLR = PIN3_bm;
+    _delay_ms(FLASH_CONFIRM_MS);
+  }
+}
 
 // Play the light show: ramp up, breathe LED_GLOW_CYCLES times ending on the
 // dim phase (rising right before the fade would read as a restart), then a
@@ -102,6 +131,15 @@ int main(void)
 
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sei();
+
+  // If the flashing station just armed the confirm flag, blink once to show
+  // the board itself that programming succeeded, then clear it. This is a
+  // UPDI-reset boot (not a power-on), so it never collides with the show below.
+  if (eeprom_read_byte(FLASH_CONFIRM_ADDR) == FLASH_CONFIRM_ARMED)
+  {
+    flash_confirm();
+    eeprom_write_byte(FLASH_CONFIRM_ADDR, FLASH_CONFIRM_CLEARED);
+  }
 
   // Inserting the battery is a power-on reset: play one show as a built-in
   // self test. Any other reset cause -- in particular a brown-out, meaning a

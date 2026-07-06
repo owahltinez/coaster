@@ -33,6 +33,13 @@ test: build
 flash: ${BIN}.hex
 	${AVRDUDE} -U flash:w:$<
 
+# Hands-free flashing station: sit here, plug boards onto the UPDI jig one at a
+# time, and each is flashed + fused + verified automatically. A good board plays
+# a distinct rapid blink (armed via EEPROM, see main.c); a bad one stays dark, so
+# you never need to watch the screen. Host-only, like flash/fuses.
+flash-loop: ${BIN}.hex
+	uv run --with click python3 flashloop.py --hex $<
+
 # One-time per chip: brown-out detector at 1.8V while awake, sampled in sleep
 # (FUSE.BODCFG: LVL=BODLEVEL0, ACTIVE=enabled, SLEEP=sampled). The factory
 # default leaves the BOD disabled, which allows undefined behavior when the
@@ -43,4 +50,4 @@ fuses:
 clean:
 	rm -f ${BIN}.elf ${BIN}.hex ${OBJS}
 
-.PHONY: build test flash fuses clean
+.PHONY: build test flash fuses flash-loop clean
